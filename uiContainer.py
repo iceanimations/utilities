@@ -13,6 +13,7 @@ if version == 2014:
     uic.loadUiType = uiLoader.loadUiType
     import shiboken as sip
     sip.wrapinstance = sip.wrapInstance
+    sys.modules['sip'] = sip
 else:
     site.addsitedir(r"R:\Python_Scripts\maya"+str(version)+r"\PyQt")
     from PyQt4 import uic
