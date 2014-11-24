@@ -7,6 +7,11 @@ import logging
 version = int(re.search('\\d{4}', pc.about(v=True)).group())
 if version in range(2011, 2016):
     site.addsitedir(r"R:\Python_Scripts\maya"+str(version)+r"\PyQt")
+    import sip
+    API_NAMES = ["QDate", "QDateTime", "QString", "QTextStream", "QTime", "QUrl", "QVariant"]
+    API_VERSION = 2
+    for name in API_NAMES:
+        sip.setapi(name, API_VERSION)
     from PyQt4 import uic
 else:
     import PySide as PyQt4
