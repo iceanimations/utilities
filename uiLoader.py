@@ -1,6 +1,5 @@
 import shiboken
 from PySide import QtGui, QtCore
-import maya.OpenMayaUI as apiUI
 from cStringIO import StringIO
 import pysideuic
 import xml.etree.ElementTree as xml
