@@ -1,6 +1,5 @@
-import shiboken
-from PySide import QtGui, QtCore
 from cStringIO import StringIO
+from PySide import QtGui
 import pysideuic
 import xml.etree.ElementTree as xml
 
