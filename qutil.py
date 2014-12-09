@@ -12,3 +12,8 @@ def splitPath(path):
 
 def basename3(path):
     return osp.join(*splitPath(path)[-3:])
+
+def mkdir(path, dirs):
+    for d in splitPath(dirs):
+        path = osp.join(path, d)
+        os.mkdir(path)
