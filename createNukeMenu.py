@@ -1,3 +1,5 @@
+import sip
+sip.setapi('QString', 2)
 import nuke
 from nukeMenuCommands import *
 
