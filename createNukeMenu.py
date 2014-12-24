@@ -7,7 +7,8 @@ from nukeMenuCommands import *
 # finally create that function in the nukeMenuCommands.py
 
 nukeMenu = {
-            'Replace Read Paths': replaceReadPaths
+            'Replace Read Paths': replaceReadPaths,
+            'Red To Default': fromRedToDefault
             }
 
 def create():
