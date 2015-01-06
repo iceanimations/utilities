@@ -1,6 +1,7 @@
 import os
 import operator
 import os.path as osp
+import pymel.core as pc
 
 
 def splitPath(path):
