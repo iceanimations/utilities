@@ -1,7 +1,10 @@
 import os
 import operator
 import os.path as osp
-import pymel.core as pc
+try: # because of Nuke
+    import pymel.core as pc
+except:
+    pass
 
 
 def splitPath(path):
@@ -36,3 +39,6 @@ def getAttrRecursiveGroup(node, attribute):
         except pc.MayaNodeError:
             break
     return attr
+
+def getNiceName(name):
+    return name.split(':')[-1].split('|')[-1]
