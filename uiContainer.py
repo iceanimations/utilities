@@ -6,7 +6,7 @@ import logging
 
 version = int(re.search('\\d{4}', pc.about(v=True)).group())
 if version in range(2011, 2016):
-    site.addsitedir(r"R:\Python_Scripts\maya"+str(version)+r"\PyQt")
+    site.addsitedir(r"\\vnas\storage\Technical_Backup\Python_Scripts\maya"+str(version)+r"\PyQt")
     import sip
     API_NAMES = ["QDate", "QDateTime", "QString", "QTextStream", "QTime", "QUrl", "QVariant"]
     API_VERSION = 2

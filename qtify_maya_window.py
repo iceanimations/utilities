@@ -1,9 +1,6 @@
-#sip.setapi('QString', 2)
-#sip.setapi('QVariant', 2)
 import maya.OpenMayaUI as apiUI
 import pymel.core as pc
 import site
-site.addsitedir(r"R:\Pipe_Repo\Users\Qurban\utilities")
 import uiContainer
 from PyQt4 import QtGui, QtCore
 from sip import wrapinstance as wrap
