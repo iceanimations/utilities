@@ -12,18 +12,25 @@ class MessageBox(QMessageBox):
 
 def showMessage(parent, title = 'Shot Export',
                 msg = 'Message', btns = QMessageBox.Ok,
-                icon = None, ques = None, details = None):
+                icon = None, ques = None, details = None, **kwargs):
 
-    if msg:
-        mBox = MessageBox(parent)
-        mBox.setWindowTitle(title)
-        mBox.setText(msg)
-        if ques:
-            mBox.setInformativeText(ques)
-        if icon:
-            mBox.setIcon(icon)
-        if details:
-            mBox.setDetailedText(details)
-        mBox.setStandardButtons(btns)
-        buttonPressed = mBox.exec_()
-        return buttonPressed
+    mBox = MessageBox(parent)
+    mBox.setWindowTitle(title)
+    mBox.setText(msg)
+    if ques:
+        mBox.setInformativeText(ques)
+    if icon:
+        mBox.setIcon(icon)
+    if details:
+        mBox.setDetailedText(details)
+    customButtons = kwargs.get('customButtons')
+    mBox.setStandardButtons(btns)
+    if customButtons:
+        for btn in customButtons:
+            mBox.addButton(btn, QMessageBox.AcceptRole)
+    pressed = mBox.exec_()
+    if customButtons:
+        cBtn = mBox.clickedButton()
+        if cBtn in customButtons:
+            return cBtn
+    return pressed
