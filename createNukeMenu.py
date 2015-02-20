@@ -10,7 +10,8 @@ from nukeMenuCommands import *
 
 nukeMenu = {
             'Replace Read Paths': replaceReadPaths,
-            'Red To Default': fromRedToDefault
+            'Red To Default': fromRedToDefault,
+            'Render Write (One by One)': renderWrites
             }
 
 def create():
