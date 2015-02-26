@@ -1,3 +1,6 @@
+import createNukeMenu
+reload(createNukeMenu)
+
 def replaceReadPaths():
     import replaceReadPath as rrp
     reload(rrp)
@@ -12,3 +15,7 @@ def renderWrites():
     import renderWrite
     reload(renderWrite)
     renderWrite.render()
+    
+def rebuildMenu():
+    reload(createNukeMenu)
+    createNukeMenu.create()

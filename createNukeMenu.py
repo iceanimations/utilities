@@ -1,6 +1,8 @@
 import sip
 sip.setapi('QString', 2)
 import nuke
+import nukeMenuCommands
+reload(nukeMenuCommands)
 from nukeMenuCommands import *
 
 # add new script to the following dict
@@ -13,7 +15,10 @@ nukeMenu = {
             'Red To Default': fromRedToDefault,
             'Batch Render': renderWrites
             }
-
+menuName = 'ICE Scripts/'
 def create():
+    nuke.menu('Nuke').removeItem(menuName[0:-1])
     for name, func in nukeMenu.items():
-        nuke.menu('Nuke').addCommand('ICE Scripts/'+ name, func)
+        nuke.menu('Nuke').addCommand(menuName+ name, func)
+    nuke.menu('Nuke').menu(menuName[0:-1]).addSeparator()
+    nuke.menu('Nuke').addCommand(menuName+'Rebuild this menu', rebuildMenu)
