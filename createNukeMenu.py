@@ -11,7 +11,7 @@ from nukeMenuCommands import *
 nukeMenu = {
             'Replace Read Paths': replaceReadPaths,
             'Red To Default': fromRedToDefault,
-            'Render Write (One by One)': renderWrites
+            'Batch Render': renderWrites
             }
 
 def create():
