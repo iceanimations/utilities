@@ -11,7 +11,7 @@ from nukeMenuCommands import *
 # finally create that function in the nukeMenuCommands.py
 
 nukeMenu = {
-            'Replace Read Paths': replaceReadPaths,
+            'Read Node Tool': replaceReadPaths,
             'Red To Default': fromRedToDefault,
             'Batch Render': renderWrites
             }
