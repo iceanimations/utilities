@@ -13,7 +13,8 @@ from nukeMenuCommands import *
 nukeMenu = {
             'Read Node Tool': replaceReadPaths,
             'Red To Default': fromRedToDefault,
-            'Batch Render': renderWrites
+            'Batch Render': renderWrites,
+            'Set Nearest Frame': setNearestFrame
             }
 menuName = 'ICE Scripts/'
 def create():

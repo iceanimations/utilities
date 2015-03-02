@@ -1,5 +1,6 @@
 import createNukeMenu
 reload(createNukeMenu)
+import nuke
 
 def replaceReadPaths():
     import replaceReadPath as rrp
@@ -19,3 +20,7 @@ def renderWrites():
 def rebuildMenu():
     reload(createNukeMenu)
     createNukeMenu.create()
+    
+def setNearestFrame():
+    for node in nuke.selectedNodes('Read'):
+        node.knob('on_error').setValue(3)
