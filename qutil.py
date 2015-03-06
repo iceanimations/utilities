@@ -30,7 +30,7 @@ def mkdir(path, dirs):
         os.mkdir(path)
         
 def getAttrRecursiveGroup(node, attribute):
-    '''returns the specified attribute of a node traversing to the last parent'''
+    '''returns the specified attribute (translation, rotation, scale) of a node traversing to the last parent'''
     attr = (0, 0, 0)
     for _ in range(200):
         attr = tuple(operator.add(attr, pc.PyNode(str(node)+ '.'+ attribute).get()))
@@ -42,3 +42,22 @@ def getAttrRecursiveGroup(node, attribute):
 
 def getNiceName(name):
     return name.split(':')[-1].split('|')[-1]
+
+def fileExists(path, fileName):
+    for name in os.listdir(path):
+        try:
+            if re.search(fileName+'_v\d{3}', name):
+                return True
+        except:
+            pass
+
+def getLastVersion(path, fileName, nxt=False):
+    versions = []
+    for version in os.listdir(path):
+        try:
+            versions.append(int(re.search('_v\d{3}', version).group().split('v')[-1]))
+        except AttributeError:
+            pass
+    if versions:
+        temp = max(versions) + 1 if nxt else max(versions)
+        return fileName +'_v'+ str(temp).zfill(3)

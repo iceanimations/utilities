@@ -12,9 +12,10 @@ from nukeMenuCommands import *
 
 nukeMenu = {
             'Read Node Tool': replaceReadPaths,
-            'Red To Default': fromRedToDefault,
+            'Red to Default': fromRedToDefault,
             'Batch Render': renderWrites,
-            'Set Nearest Frame': setNearestFrame
+            'Set Nearest Frame': setNearestFrame,
+            'Auto Increment Save': saveIncrement
             }
 menuName = 'ICE Scripts/'
 def create():
@@ -22,4 +23,4 @@ def create():
     for name, func in nukeMenu.items():
         nuke.menu('Nuke').addCommand(menuName+ name, func)
     nuke.menu('Nuke').menu(menuName[0:-1]).addSeparator()
-    nuke.menu('Nuke').addCommand(menuName+'Rebuild this menu', rebuildMenu)
+    nuke.menu('Nuke').addCommand(menuName+'Rebuild this Menu', rebuildMenu)

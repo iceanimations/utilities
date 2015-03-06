@@ -24,3 +24,8 @@ def rebuildMenu():
 def setNearestFrame():
     for node in nuke.selectedNodes('Read'):
         node.knob('on_error').setValue(3)
+
+def saveIncrement():
+    import autoSave
+    reload(autoSave)
+    autoSave.Window().show()
