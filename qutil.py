@@ -1,4 +1,5 @@
 import os
+import re
 import operator
 import os.path as osp
 try: # because of Nuke
