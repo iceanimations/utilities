@@ -28,7 +28,10 @@ def mkdir(path, dirs):
     '''makes directories or folders recursively in a given path'''
     for d in splitPath(dirs):
         path = osp.join(path, d)
-        os.mkdir(path)
+        try:
+            os.mkdir(path)
+        except:
+            pass
         
 def getAttrRecursiveGroup(node, attribute):
     '''returns the specified attribute (translation, rotation, scale) of a node traversing to the last parent'''
