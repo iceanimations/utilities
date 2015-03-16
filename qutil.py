@@ -2,6 +2,7 @@ import os
 import re
 import operator
 import os.path as osp
+import csv
 try: # because of Nuke
     import pymel.core as pc
 except:
