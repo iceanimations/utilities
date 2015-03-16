@@ -19,6 +19,11 @@ def splitPath(path):
             components.reverse()
             return components
         components.append(tail)
+        
+def getCSVFileData(fileName):
+    with open(fileName, 'rb') as csvfile:
+        tuples = list(csv.reader(csvfile, delimiter=','))
+    return tuples
 
 def basename3(path):
     '''returns last 3 entries in a file or folder path as a string'''
