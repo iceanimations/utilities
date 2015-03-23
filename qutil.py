@@ -9,6 +9,22 @@ except:
     pass
 
 
+def setRenderableCamera(camera, append=False):
+    '''truns the .renderable attribute on for the specified camera. Turns
+    it off for all other cameras in the scene if append is set to True'''
+    if not append:
+        for cam in pc.ls(cameras=True):
+            if cam.renderable.get():
+                cam.renderable.set(False)
+    camera.renderable.set(True)
+
+def dictionaryToDetails(_dict, anl='Reason'):
+    '''converts a dictinary containing key values as strings to a string
+    each key value pair separated by \n and each item (key value) both separated
+    by \n\n'''
+    
+    return '\n\n'.join(['\n%s: '.join(key, value)%anl for key, value in errors.items()])
+
 def splitPath(path):
     '''splits a file or folder path and returns as a list
     'D:/path/to/folder/or/file' -> ['D:', 'path', 'to', 'folder', 'or', 'file']
@@ -22,6 +38,7 @@ def splitPath(path):
         components.append(tail)
         
 def getCSVFileData(fileName):
+    '''returns list of tupples containing the csv file rows separated by comma'''
     with open(fileName, 'rb') as csvfile:
         tuples = list(csv.reader(csvfile, delimiter=','))
     return tuples
