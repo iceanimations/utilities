@@ -5,9 +5,17 @@ import os.path as osp
 import csv
 try: # because of Nuke
     import pymel.core as pc
+    import maya.cmds as cmds
 except:
     pass
 
+
+def getFileType():
+    return cmds.file(q=True, type=True)[0]
+
+def getExtension():
+    '''returns the extension of the file name'''
+    return '.ma' if getFileType() == 'mayaAscii' else '.mb'
 
 def setRenderableCamera(camera, append=False):
     '''truns the .renderable attribute on for the specified camera. Turns
@@ -43,9 +51,9 @@ def getCSVFileData(fileName):
         tuples = list(csv.reader(csvfile, delimiter=','))
     return tuples
 
-def basename3(path):
-    '''returns last 3 entries in a file or folder path as a string'''
-    return osp.join(*splitPath(path)[-3:])
+def basename(path, depth):
+    '''returns last 'depth' entries in a file or folder path as a string'''
+    return osp.join(*splitPath(path)[-depth:])
 
 def mkdir(path, dirs):
     '''makes directories or folders recursively in a given path'''
