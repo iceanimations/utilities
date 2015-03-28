@@ -41,6 +41,7 @@ def splitPath(path):
     while True:
         (path,tail) = os.path.split(path)
         if tail == "":
+            components.append(path)
             components.reverse()
             return components
         components.append(tail)
@@ -51,9 +52,13 @@ def getCSVFileData(fileName):
         tuples = list(csv.reader(csvfile, delimiter=','))
     return tuples
 
-def basename(path, depth):
+def basename(path, depth=3):
     '''returns last 'depth' entries in a file or folder path as a string'''
     return osp.join(*splitPath(path)[-depth:])
+
+def dirname(path, depth=3):
+    '''removes last 'depth' entries from a file or folder name'''
+    return osp.join(*splitPath(path)[:-depth])
 
 def mkdir(path, dirs):
     '''makes directories or folders recursively in a given path'''
