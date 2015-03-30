@@ -41,7 +41,8 @@ def splitPath(path):
     while True:
         (path,tail) = os.path.split(path)
         if tail == "":
-            components.append(path)
+            if path:
+                components.append(path)
             components.reverse()
             return components
         components.append(tail)
@@ -57,8 +58,8 @@ def basename(path, depth=3):
     return osp.join(*splitPath(path)[-depth:])
 
 def dirname(path, depth=3):
-    '''removes last 'depth' entries from a file or folder name'''
-    return osp.join(*splitPath(path)[:-depth])
+    '''removes last 'depth' entries from a file or folder path'''
+    return osp.normpath(osp.join(*splitPath(path)[:-depth]))
 
 def mkdir(path, dirs):
     '''makes directories or folders recursively in a given path'''
@@ -68,7 +69,7 @@ def mkdir(path, dirs):
             os.mkdir(path)
         except:
             pass
-        
+
 def getAttrRecursiveGroup(node, attribute):
     '''returns the specified attribute (translation, rotation, scale) of a node traversing to the last parent'''
     attr = (0, 0, 0)
