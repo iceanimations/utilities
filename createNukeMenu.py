@@ -11,7 +11,7 @@ from nukeMenuCommands import *
 # finally create that function in the nukeMenuCommands.py
 
 nukeMenu = {
-            'Read Node Tool': replaceReadPaths,
+            'Backdrop Tool': replaceReadPaths,
             'Red to Default': fromRedToDefault,
             'Batch Render': renderWrites,
             'Set Nearest Frame': setNearestFrame,
