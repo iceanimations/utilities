@@ -4,6 +4,9 @@ import nuke
 import nukeMenuCommands
 reload(nukeMenuCommands)
 from nukeMenuCommands import *
+import startup
+#reload(startup)
+startup.setupNuke()
 
 # add new script to the following dict
 # key => name of the script that will appear in the nuke under ICE Scripts menu
