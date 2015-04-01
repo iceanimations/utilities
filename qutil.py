@@ -31,7 +31,7 @@ def dictionaryToDetails(_dict, anl='Reason'):
     each key value pair separated by \n and each item (key value) both separated
     by \n\n'''
     
-    return '\n\n'.join(['\n%s: '.join(key, value)%anl for key, value in errors.items()])
+    return '\n\n'.join(['\n%s: '.join([key, value])%anl for key, value in _dict.items()])
 
 def splitPath(path):
     '''splits a file or folder path and returns as a list

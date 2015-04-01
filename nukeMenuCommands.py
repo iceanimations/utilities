@@ -29,3 +29,8 @@ def saveIncrement():
     import autoSave
     reload(autoSave)
     autoSave.Window().show()
+    
+def addWriteNodes():
+    import addWrite
+    reload(addWrite)
+    addWrite.addWrite()
