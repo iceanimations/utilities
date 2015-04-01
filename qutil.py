@@ -81,7 +81,9 @@ def getAttrRecursiveGroup(node, attribute):
             break
     return attr
 
-def getNiceName(name):
+def getNiceName(name, full=False):
+    if full:
+        return name.replace(':', '_').replace('|', '_')
     return name.split(':')[-1].split('|')[-1]
 
 def fileExists(path, fileName):
