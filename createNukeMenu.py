@@ -5,7 +5,7 @@ import nukeMenuCommands
 reload(nukeMenuCommands)
 from nukeMenuCommands import *
 import startup
-#reload(startup)
+reload(startup)
 startup.setupNuke()
 
 # add new script to the following dict
