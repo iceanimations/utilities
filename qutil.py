@@ -9,6 +9,9 @@ try: # because of Nuke
 except:
     pass
 
+def getUsername():
+    return os.environ['USERNAME']
+
 
 def getFileType():
     return cmds.file(q=True, type=True)[0]

@@ -19,7 +19,7 @@ nukeMenu = {
             'Batch Render': renderWrites,
             'Set Nearest Frame': setNearestFrame,
             'Auto Increment Save': saveIncrement,
-            'Add Write Nodes': addWriteNodes
+            'Add Write Node': addWriteNodes
             }
 menuName = 'ICE Scripts/'
 def create():
