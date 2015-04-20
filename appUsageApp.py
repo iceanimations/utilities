@@ -4,6 +4,7 @@ reload(appUsageApp2)
 import os
 
 def updateDatabase(appName = 'testApp'):
+    return
     userName = os.environ['USERNAME']
     if userName in ['qurban.ali', 'talha.ahmed', 'hussain.parsaiyan']:
        return
