@@ -8,6 +8,8 @@ try: # because of Nuke
     import maya.cmds as cmds
 except:
     pass
+import string # for get_drives
+from ctypes import windll # for get_drives
 
 def getUsername():
     return os.environ['USERNAME']
@@ -107,3 +109,12 @@ def getLastVersion(path, fileName, nxt=False):
     if versions:
         temp = max(versions) + 1 if nxt else max(versions)
         return fileName +'_v'+ str(temp).zfill(3)
+    
+def get_drives():
+    drives = []
+    bitmask = windll.kernel32.GetLogicalDrives()
+    for letter in string.uppercase:
+        if bitmask & 1:
+            drives.append(letter)
+        bitmask >>= 1
+    return drives
