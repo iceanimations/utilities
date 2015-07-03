@@ -11,8 +11,27 @@ except:
 import string # for get_drives
 from ctypes import windll # for get_drives
 
+def addCamera(name):
+    command = '''
+    string $camera[] = `camera -n persp -hc "viewSet -p %camera"`;   viewSet -p $camera[0];   lookThroughModelPanel $camera[0] modelPanel4;   if (`optionVar -q "viewportRenderer"`== 2) ActivateViewport20; else setRendererInModelPanel base_OpenGL_Renderer modelPanel4;
+    '''
+    pc.mel.eval(command)
+    camera = pc.ls(sl=True)[0]
+    pc.rename(camera, name)
+    return camera
+
 def getUsername():
     return os.environ['USERNAME']
+
+def addOptionVar(name, value):
+    if type(value) == type(int):
+        pc.optionVar(iv=(name, value))
+    elif isinstance(value, basestring):
+        pc.optionVar(sv=(name, value))
+        
+def getOptionVar(name):
+    if pc.optionVar(exists=name):
+        return pc.optionVar(q=name)
 
 
 def getFileType():
@@ -118,3 +137,98 @@ def get_drives():
             drives.append(letter)
         bitmask >>= 1
     return drives
+
+def getReferences(loaded=False, unloaded=False):
+    refs = []
+    for ref in pc.ls(type=pc.nt.Reference):
+        if ref.referenceFile():
+            refs.append(ref.referenceFile())
+    if loaded:
+        return [ref for ref in refs if ref.isLoaded()]
+    if unloaded:
+        return [ref for ref in refs if not ref.isLoaded()]
+    return refs
+
+def getRefFromSet(geoset):
+    for ref in getReferences(loaded=True):
+        if geoset in ref.nodes():
+            return ref 
+
+def addRef(path):
+    try:
+        namespace = os.path.basename(path)
+        namespace = os.path.splitext(namespace)[0]
+        match = re.match('(.*)([-._]v\d+)(.*)', namespace)
+        if match:
+            namespace = match.group(1) + match.group(3)
+        return pc.createReference(path, namespace=namespace, mnc=False)
+    except Exception as ex:
+        self.errorsList.append('Could not create Reference for\n'+ path +'\nReason: '+ str(ex))
+
+def getCombinedMesh(ref):
+    '''returns the top level meshes from a reference node'''
+    meshes = []
+    if ref:
+        for node in pc.FileReference(ref).nodes():
+            if type(node) == pc.nt.Mesh:
+                try:
+                    node.firstParent().firstParent()
+                except pc.MayaNodeError:
+                    if not node.isIntermediate():
+                        meshes.append(node.firstParent())
+                except Exception as ex:
+                    #self.errorsList.append('Could not retrieve combined mesh for Reference\n'+ref.path+'\nReason: '+ str(ex))
+                    pass
+    return meshes
+
+def getMeshFromSet(ref):
+    meshes = []
+    if ref:
+        try:
+            _set = [obj for obj in ref.nodes() if 'geo_set' in obj.name()
+                    and type(obj)==pc.nt.ObjectSet ][0]
+            meshes = [shape
+                    for transform in pc.PyNode(_set).dsm.inputs(type="transform")
+                    for shape in transform.getShapes(type = "mesh", ni = True)]
+            #return [pc.polyUnite(ch=1, mergeUVSets=1, *_set.members())[0]] # put the first element in list and return
+            combinedMesh = pc.polyUnite(ch=1, mergeUVSets=1, *meshes)[0]
+            combinedMesh.rename(qutil.getNiceName(_set) + '_combinedMesh')
+            return [combinedMesh] # put the first element in list and return
+        except:
+            return meshes
+    return meshes
+
+def applyCache(mapping):
+    '''applies cache on the combined models connected to geo_sets
+    and exports the combined models'''
+    errorsList = []
+    if mapping:
+        count = 1
+        for cache, path in mapping.items():
+            cacheFile = cache+'.xml'
+            if osp.exists(cacheFile):
+                if path:
+                    if osp.exists(path):
+                        ref = addRef(path)
+                        meshes = getCombinedMesh(ref)
+#                         if len(meshes) != 1:
+#                             meshes = getMeshFromSet(ref)
+                        if meshes:
+                            if len(meshes) == 1:
+                                pc.mel.doImportCacheFile(cacheFile.replace('\\', '/'), "", meshes, list())
+                            else:
+                                errorsList.append('Unable to identify Combined mesh or ObjectSet\n'+ path +'\n'+ '\n'.join(meshes))
+                                pc.delete(meshes)
+                                ref.remove()
+                        else:
+                            errorsList.append('Could not find or build combined mesh from\n'+path)
+                            ref.remove()
+                    else:
+                        errorsList.append('LD path does not exist for '+cache+'\n'+ path)
+                else:
+                    errorsList.append('No LD added for '+ cache)
+            else:
+                errorsList.append('cache file does not exist\n'+ cache)
+    else:
+        errorsList.append('No mappings found in the file')
+    return errorsList
