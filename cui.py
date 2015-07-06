@@ -1,4 +1,7 @@
-from uiContainer import uic
+try:
+    from uiContainer import uic
+except:
+    from PyQt4 import uic
 from PyQt4.QtGui import *
 import os.path as osp
 
