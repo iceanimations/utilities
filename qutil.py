@@ -11,6 +11,8 @@ except:
 import string # for get_drives
 from ctypes import windll # for get_drives
 
+FPS_MAPPINGS = {'film (24 fps)': 'film', 'pal (25 fps)': 'pal'}
+
 def addCamera(name):
     command = '''
     string $camera[] = `camera -n persp -hc "viewSet -p %camera"`;   viewSet -p $camera[0];   lookThroughModelPanel $camera[0] modelPanel4;   if (`optionVar -q "viewportRenderer"`== 2) ActivateViewport20; else setRendererInModelPanel base_OpenGL_Renderer modelPanel4;
