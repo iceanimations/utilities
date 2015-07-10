@@ -154,7 +154,7 @@ def getReferences(loaded=False, unloaded=False):
 def getRefFromSet(geoset):
     for ref in getReferences(loaded=True):
         if geoset in ref.nodes():
-            return ref 
+            return ref
 
 def addRef(path):
     try:
