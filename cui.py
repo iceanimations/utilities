@@ -24,6 +24,9 @@ class SelectionBox(Form2, Base2):
         self.items = items
         for item in items:
             self.itemsLayout.addWidget(item)
+            
+    def setCancelToolTip(self, tip):
+        self.cancelButton.setToolTip(tip)
         
     def setMessage(self, msg):
         self.msgLabel.setText(msg)

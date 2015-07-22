@@ -194,7 +194,7 @@ def getMeshFromSet(ref):
                     for shape in transform.getShapes(type = "mesh", ni = True)]
             #return [pc.polyUnite(ch=1, mergeUVSets=1, *_set.members())[0]] # put the first element in list and return
             combinedMesh = pc.polyUnite(ch=1, mergeUVSets=1, *meshes)[0]
-            combinedMesh.rename(qutil.getNiceName(_set) + '_combinedMesh')
+            combinedMesh.rename(getNiceName(_set) + '_combinedMesh')
             return [combinedMesh] # put the first element in list and return
         except:
             return meshes
