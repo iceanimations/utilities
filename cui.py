@@ -69,7 +69,8 @@ class MultiSelectComboBox(Form1, Base1):
             self.button.setText(','.join(items[:2]) + s)
         else:
             self.setHintText(self.msg)
-        QMenu.hideEvent(self.menu, event)
+        if event:
+            QMenu.hideEvent(self.menu, event)
         
     def getSelectedItems(self):
         return [cBox.text().strip() for cBox in
@@ -81,14 +82,18 @@ class MultiSelectComboBox(Form1, Base1):
                 [action.defaultWidget() for action in
                  self.menu.actions()]]
 
-    def addItems(self, items):
+    def addItems(self, items, selected=None):
         items = sorted(items)
         self.clearItems()
         for item in items:
             checkBox = QCheckBox(item, self.menu)
+            if selected and item in selected:
+                checkBox.setChecked(True)
             checkableAction = QWidgetAction(self.menu)
             checkableAction.setDefaultWidget(checkBox)
             self.menu.addAction(checkableAction)
+        if selected:
+            self.menuHideEvent(None)
 
     def clearItems(self):
         self.menu.clear()
