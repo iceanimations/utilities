@@ -18,7 +18,6 @@ def renderWrites():
     renderWrite.render()
     
 def rebuildMenu():
-    print 'rebuilt'
     reload(createNukeMenu)
     createNukeMenu.create()
     
