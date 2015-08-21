@@ -157,15 +157,12 @@ def getRefFromSet(geoset):
             return ref
 
 def addRef(path):
-    try:
-        namespace = os.path.basename(path)
-        namespace = os.path.splitext(namespace)[0]
-        match = re.match('(.*)([-._]v\d+)(.*)', namespace)
-        if match:
-            namespace = match.group(1) + match.group(3)
-        return pc.createReference(path, namespace=namespace, mnc=False)
-    except Exception as ex:
-        self.errorsList.append('Could not create Reference for\n'+ path +'\nReason: '+ str(ex))
+    namespace = os.path.basename(path)
+    namespace = os.path.splitext(namespace)[0]
+    match = re.match('(.*)([-._]v\d+)(.*)', namespace)
+    if match:
+        namespace = match.group(1) + match.group(3)
+    return pc.createReference(path, namespace=namespace, mnc=False)
 
 def getCombinedMesh(ref):
     '''returns the top level meshes from a reference node'''
