@@ -63,16 +63,31 @@ class MultiSelectComboBox(Form1, Base1):
         checkableAction = QWidgetAction(self.menu)
         checkableAction.setDefaultWidget(button)
         self.menu.addAction(checkableAction)
-        self.addItem('Select All').toggled.connect(self.toggleAll)
+        btn = self.addItem('Select All')
+        btn.clicked.connect(lambda: self.toggleAll(btn.isChecked()))
         self.menu.addSeparator()
         
     def invertSelection(self):
         for cBox in self.getWidgetItems():
             cBox.setChecked(not cBox.isChecked())
+        self.toggleSelectAllButton()
         
     def toggleAll(self, val):
         for cBox in self.getWidgetItems():
             cBox.setChecked(val)
+            
+    def toggleSelectAllButton(self):
+        flag = True
+        for cBox in self.getWidgetItems():
+            if not cBox.isChecked():
+                flag = False
+                break
+        for action in self.menu.actions():
+            if type(action) == QAction:
+                continue
+            widget = action.defaultWidget()
+            if widget.text() == 'Select All':
+                widget.setChecked(flag)
         
     def setHintText(self, text):
         self.button.setText(text)
@@ -121,7 +136,8 @@ class MultiSelectComboBox(Form1, Base1):
             sel = False
             if selected and item in selected:
                 sel = True
-            self.addItem(item, sel)
+            btn = self.addItem(item, sel)
+            btn.clicked.connect(self.toggleSelectAllButton)
         if selected:
             self.menuHideEvent(None)
 
