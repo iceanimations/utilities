@@ -57,6 +57,23 @@ class MultiSelectComboBox(Form1, Base1):
         self.menu.hideEvent = self.menuHideEvent
         self.setHintText(self.msg)
         
+    def addDefaultWidgets(self):
+        button = QPushButton('Invert Selection', self)
+        button.clicked.connect(self.invertSelection)
+        checkableAction = QWidgetAction(self.menu)
+        checkableAction.setDefaultWidget(button)
+        self.menu.addAction(checkableAction)
+        self.addItem('Select All').toggled.connect(self.toggleAll)
+        self.menu.addSeparator()
+        
+    def invertSelection(self):
+        for cBox in self.getWidgetItems():
+            cBox.setChecked(not cBox.isChecked())
+        
+    def toggleAll(self, val):
+        for cBox in self.getWidgetItems():
+            cBox.setChecked(val)
+        
     def setHintText(self, text):
         self.button.setText(text)
         
@@ -73,25 +90,38 @@ class MultiSelectComboBox(Form1, Base1):
             QMenu.hideEvent(self.menu, event)
         
     def getSelectedItems(self):
-        return [cBox.text().strip() for cBox in
+        return [cBox.text().strip() for cBox in self.getWidgetItems() if cBox.isChecked()]
+        
+    def getWidgetItems(self):
+        return [cBox for cBox in
                 [action.defaultWidget() for action in
-                 self.menu.actions()] if cBox.isChecked()]
+                 self.menu.actions() if not type(action) is QAction] if cBox.text().strip() != 'Select All' and cBox.text().strip() != 'Invert Selection']
         
     def getItems(self):
-        return [cBox.text().strip() for cBox in
-                [action.defaultWidget() for action in
-                 self.menu.actions()]]
+        return [cBox.text().strip() for cBox in self.getWidgetItems()]
+        
+    def addItem(self, item, selected=False):
+        checkBox = QCheckBox(item, self.menu)
+        if selected:
+            checkBox.setChecked(True)
+        checkableAction = QWidgetAction(self.menu)
+        checkableAction.setDefaultWidget(checkBox)
+        self.menu.addAction(checkableAction)
+        return checkBox
+    
+    def appendItems(self, items, selected=None):
+        self.addItems(items, selected=selected, clear=False)
 
-    def addItems(self, items, selected=None):
+    def addItems(self, items, selected=None, clear=True):
         items = sorted(items)
-        self.clearItems()
+        if clear:
+            self.clearItems()
+        self.addDefaultWidgets()
         for item in items:
-            checkBox = QCheckBox(item, self.menu)
+            sel = False
             if selected and item in selected:
-                checkBox.setChecked(True)
-            checkableAction = QWidgetAction(self.menu)
-            checkableAction.setDefaultWidget(checkBox)
-            self.menu.addAction(checkableAction)
+                sel = True
+            self.addItem(item, sel)
         if selected:
             self.menuHideEvent(None)
 
