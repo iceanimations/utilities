@@ -34,3 +34,8 @@ def addWriteNodes():
     import addWrite
     reload(addWrite)
     addWrite.addWrite()
+
+def reread():
+    import rereadFrameRange as rr
+    reload(rr)
+    rr.read()
