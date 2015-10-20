@@ -14,10 +14,15 @@ from ctypes import windll # for get_drives
 FPS_MAPPINGS = {'film (24 fps)': 'film', 'pal (25 fps)': 'pal'}
 
 def addCamera(name):
-    command = '''
-    string $camera[] = `camera -n persp -hc "viewSet -p %camera"`;   viewSet -p $camera[0];   lookThroughModelPanel $camera[0] modelPanel4;   if (`optionVar -q "viewportRenderer"`== 2) ActivateViewport20; else setRendererInModelPanel base_OpenGL_Renderer modelPanel4;
-    '''
-    pc.mel.eval(command)
+
+    #command = '''
+    #string $camera[] = `camera -n persp -hc "viewSet -p %camera"`;   viewSet -p $camera[0];   lookThroughModelPanel $camera[0] modelPanel4;   if (`optionVar -q "viewportRenderer"`== 2) ActivateViewport20; else setRendererInModelPanel base_OpenGL_Renderer modelPanel4;
+    #'''
+    #try:
+        #pc.mel.eval(command)
+    #except:
+        #pass
+    camera = pc.camera(n='persp')
     camera = pc.ls(sl=True)[0]
     pc.rename(camera, name)
     return camera
