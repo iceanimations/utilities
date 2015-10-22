@@ -6,9 +6,13 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import os.path as osp
 import logging
+import tactic_client_lib as tcl
+import os
+import traceback
 
 rootPath = osp.dirname(__file__)
 uiPath = osp.join(rootPath, 'ui')
+iconPath = osp.join(rootPath, 'icons')
 
 Form2, Base2 = uic.loadUiType(osp.join(uiPath, 'selectionBox.ui'))
 class SelectionBox(Form2, Base2):
@@ -223,3 +227,48 @@ class QTextLogHandler(QObject, logging.Handler):
             for logger in self.loggers:
                 logger.setLevel(level)
 
+Form3, Base3 = uic.loadUiType(osp.join(uiPath, 'tacticLogin.ui'))
+class TacticLogin(Form3, Base3):
+    def __init__(self, parent=None):
+        super(TacticLogin, self).__init__(parent)
+        self.setupUi(self)
+        self.setWindowIcon(QIcon(osp.join(iconPath, 'login.png')))
+        self.server = None
+        
+        self.usernameBox.setText(os.environ['USERNAME'])
+        
+        self.loginButton.clicked.connect(self.login)
+        self.cancelButton.clicked.connect(self.reject)
+        self.projectBox.activated.connect(self.closeWindow)
+        self.passwordBox.setFocus()
+        
+    def populateProjects(self):
+        projs = self.server.eval('@GET(sthpw/project.code)')
+        if projs:
+            self.projectBox.addItems(projs)
+    
+    def closeWindow(self):
+        if self.projectBox.currentText() == '--Select Project--':
+            return
+        self.server.set_project(self.projectBox.currentText())
+        self.accept()
+        
+    def login(self):
+        username = self.usernameBox.text()
+        if not username: return
+        password = self.passwordBox.text()
+        if not password: return
+        try:
+            self.server = tcl.TacticServerStub(server='dbserver', login='qurban.ali', password='13490', project='test_mansour_ep')
+#             self.server = tcl.TacticServerStub(setup=False)
+#             self.server.set_server('dbserver')
+#             ticket = self.server.get_ticket(username, password)
+#             self.server.set_ticket(ticket)
+        except Exception as ex:
+            showMessage(self, title='Login Error', msg=str(ex), icon=QMessageBox.Critical)
+            traceback.print_exc()
+            return
+        self.populateProjects()
+    
+    def getServer(self):
+        return self.server
