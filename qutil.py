@@ -102,7 +102,7 @@ def mkdir(path, dirs):
             pass
 
 def getAttrRecursiveGroup(node, attribute):
-    '''returns the specified attribute (translation, rotation, scale) of a node traversing to the last parent'''
+    '''returns the specified attribute (translation, rotation, scale) of a node traversing up to the first parent'''
     attr = (0, 0, 0)
     for _ in range(200):
         attr = tuple(operator.add(attr, pc.PyNode(str(node)+ '.'+ attribute).get()))
