@@ -347,10 +347,12 @@ class FlowLayout(QLayout):
             x = nextX
             lineHeight = max(lineHeight, item.sizeHint().height())
         return y + lineHeight - rect.y()
-    
+
 borderColor = '#252525'
-styleSheet = ('QComboBox {\nborder-style: solid;\nborder-color: '+borderColor+';\nborder-width: 1px;\nborder-radius: 0px;\nmin-height: 25;\nmin-width: 125}'+
-             'QPushButton {\nborder-style: solid;\nborder-color: '+borderColor+';\nborder-width: 1px;\nborder-radius: 0px;'+
-             '\nheight: 23;\nwidth: 75;\n}\nQPushButton:hover, QToolButton:hover {\nbackground-color: #303030;\n}'+
-             'QLineEdit {height: 23;\nborder-style: solid;\nborder-width: 1px;\nborder-color: '+borderColor+';\nborder-radius: 0px;\npadding-left: 15px;\npadding-bottom: 1px;}'+
-             'QToolButton {\nborder-style: solid;\nborder-color: '+borderColor+';\nborder-width: 1px;\nborder-radius: 0px;\n}')
+flat = '\nborder-style: solid;\nborder-color: '+borderColor+';\nborder-width: 1px;\nborder-radius: 0px;\n'
+styleSheet = ('QComboBox {'+ flat +'\nmin-height: 25;\nmin-width: 125}'+
+             'QPushButton {'+ flat +'\nheight: 23;\nwidth: 75;\n}\n'+
+             'QPushButton:hover, QToolButton:hover {\nbackground-color: #353535;\nborder-style: solid;\nborder-color: #4876FF\n}'+
+             'QLineEdit {height: 23;'+ flat +'}\n'
+             'QToolButton {'+ flat +'}'+
+             'QPlainTextEdit {'+ flat +'}')
