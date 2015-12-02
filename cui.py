@@ -9,6 +9,10 @@ import logging
 import tactic_client_lib as tcl
 import os
 import traceback
+import tacticCalls as utils
+import qutil
+
+reload(utils)
 
 rootPath = osp.dirname(__file__)
 uiPath = osp.join(rootPath, 'ui')
@@ -152,6 +156,107 @@ class MultiSelectComboBox(Form1, Base1):
     def clearItems(self):
         self.menu.clear()
         self.setHintText(self.msg)
+        
+class TacticUiBase(object):
+    '''This class contains useful methods for UIs that contain TACTIC
+    Project, Episode, Sequence and Shot selector boxes'''
+    def setContext(self, pro, ep, seq):
+        if pro:
+            for i in range(self.projectBox.count()):
+                if self.projectBox.itemText(i) == pro:
+                    self.projectBox.setCurrentIndex(i)
+                    break
+        if ep:
+            for i in range(self.epBox.count()):
+                if self.epBox.itemText(i) == ep:
+                    self.epBox.setCurrentIndex(i)
+                    break
+        if seq:
+            for i in range(self.seqBox.count()):
+                if self.seqBox.itemText(i) == seq:
+                    self.seqBox.setCurrentIndex(i)
+                    break
+                
+    def setServer(self):
+        self.server, errors = utils.setServer()
+        if errors:
+            self.showMessage(msg=errors.keys()[0], icon=QMessageBox.Critical,
+                             details=errors.values()[0])
+
+    def populateProjects(self):
+        self.projectBox.clear()
+        self.projectBox.addItem('--Select Project--')
+        projects, errors = utils.getProjects()
+        if errors:
+            self.showMessage(msg='Error occurred while retrieving the list of projects from TACTIC',
+                             icon=QMessageBox.Critical,
+                             details=qutil.dictionaryToDetails(errors))
+        if projects:
+            self.projectBox.addItems(projects)
+            
+    def setProject(self, project):
+        qutil.addOptionVar(self.projectKey, project)
+        self.epBox.clear()
+        self.epBox.addItem('--Select Episode--')
+        if project != '--Select Project--':
+            errors = utils.setProject(project)
+            if errors:
+                self.showMessage(msg='Error occurred while setting the project on TACTIC',
+                                 icon=QMessageBox.Critical,
+                                 details=qutil.dictionaryToDetails(errors))
+            self.populateEpisodes()
+    
+    def populateEpisodes(self):
+        self.setBusy()
+        try:
+            episodes, errors = utils.getEpisodes()
+            if errors:
+                self.showMessage(msg='Error occurred while retrieving the Episodes',
+                                 icon=QMessageBox.Critical,
+                                 details=qutil.dictionaryToDetails(errors))
+            self.epBox.addItems(episodes)
+        except Exception as ex:
+            self.releaseBusy()
+            self.showMessage(msg=str(ex), icon=QMessageBox.Critical)
+        finally:
+            self.releaseBusy()
+    
+    def populateSequences(self, ep):
+        qutil.addOptionVar(self.epKey, ep)
+        self.setBusy()
+        try:
+            self.seqBox.clear()
+            self.seqBox.addItem('--Select Sequence--')
+            if ep != '--Select Episode--':
+                seqs, errors = utils.getSequences(ep)
+                if errors:
+                    self.showMessage(msg='Error occurred while retrieving the Sequences',
+                                     icon=QMessageBox.Critical,
+                                     details=qutil.dictionaryToDetails(errors))
+                self.seqBox.addItems(seqs)
+        except Exception as ex:
+            self.releaseBusy()
+            self.showMessage(msg=str(ex), icon=QMessageBox.Critical)
+        finally:
+            self.releaseBusy()
+            
+    def getSequence(self):
+        seq = self.seqBox.currentText()
+        if seq == '--Select Sequence--':
+            seq = ''
+        return seq
+    
+    def getProject(self):
+        pro = self.projectBox.currentText()
+        if pro == '--Select Project--':
+            pro = ''
+        return pro
+    
+    def getEpisode(self):
+        ep = self.epBox.currentText()
+        if ep == '--Select Episode--':
+            ep = ''
+        return ep
 
 class MessageBox(QMessageBox):
     def __init__(self, parent=None):
@@ -228,52 +333,6 @@ class QTextLogHandler(QObject, logging.Handler):
         if setLoggerLevels:
             for logger in self.loggers:
                 logger.setLevel(level)
-
-Form3, Base3 = uic.loadUiType(osp.join(uiPath, 'tacticLogin.ui'))
-class TacticLogin(Form3, Base3):
-    def __init__(self, parent=None):
-        super(TacticLogin, self).__init__(parent)
-        self.setupUi(self)
-        self.setWindowIcon(QIcon(osp.join(iconPath, 'login.png')))
-        self.server = None
-        
-        self.usernameBox.setText(os.environ['USERNAME'])
-        
-        self.loginButton.clicked.connect(self.login)
-        self.cancelButton.clicked.connect(self.reject)
-        self.projectBox.activated.connect(self.closeWindow)
-        self.passwordBox.setFocus()
-        
-    def populateProjects(self):
-        projs = self.server.eval('@GET(sthpw/project.code)')
-        if projs:
-            self.projectBox.addItems(projs)
-    
-    def closeWindow(self):
-        if self.projectBox.currentText() == '--Select Project--':
-            return
-        self.server.set_project(self.projectBox.currentText())
-        self.accept()
-        
-    def login(self):
-        username = self.usernameBox.text()
-        if not username: return
-        password = self.passwordBox.text()
-        if not password: return
-        try:
-            self.server = tcl.TacticServerStub(server='dbserver', login='qurban.ali', password='13490', project='test_mansour_ep')
-#             self.server = tcl.TacticServerStub(setup=False)
-#             self.server.set_server('dbserver')
-#             ticket = self.server.get_ticket(username, password)
-#             self.server.set_ticket(ticket)
-        except Exception as ex:
-            showMessage(self, title='Login Error', msg=str(ex), icon=QMessageBox.Critical)
-            traceback.print_exc()
-            return
-        self.populateProjects()
-    
-    def getServer(self):
-        return self.server
     
 class FlowLayout(QLayout):
     '''reimplements QLayout to adjust the elements in the avaible width in the window'''
