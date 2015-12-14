@@ -21,11 +21,44 @@ import maya.cmds as cmds
 pc.mel.eval("source \"R:/Pipe_Repo/Users/Hussain/utilities/loader/command/mel/addInOutAttr.mel\";")
 
 server = None
+# define keys for optionVar and fileInfo
+projectKey = 'tacticProjectKey'
+episodeKey = 'tacticEpKey'
+sequenceKey = 'tacticSeqKey'
+shotKey = 'tacticShotKey'
+contextKey = 'tacticContextKey'
 
 class CCounter(Counter):
     def update_count(self, c):
         for key, value in c.items():
             self[key] = value if self[key] < value else self[key]
+            
+def uploadShotToTactic(path):
+    errors = []
+    '''uploads cache, preview and camera to Tactic from a given shot path exported by multiShotExport'''
+    try:
+        if osp.exists(path):
+            if server:
+                shot = osp.basename(path); sk = None
+                try:
+                    sk = server.eval("@SOBJECT(vfx/shot['code', '%s'])"%shot)[0]['__search_key__']
+                except IndexError:
+                    errors.append('Could not find %s on TACTIC'%shot)
+                except Exception as ex:
+                    errors.append(str(ex))
+                if sk:
+                    cotexts = os.listdir(path)
+                    for context in contexts:
+                        contextPath = osp.join(path, context)
+                        if osp.isdir(contextPath):
+                            files = os.listdir(contextPath)
+                            if files:
+                                snapshot = server.create_snapshot(sk, context)['code']
+                                server.add_file(snapshot, [osp.join(contextPath, f) for f in files])
+            else:
+                errors.append('Could not find TACTIC server')
+    except Exception as ex:
+        errors.append(str(ex))
 
 def setServer(serv=None):
     errors = {}
@@ -99,6 +132,19 @@ def getShots(seq):
     else:
         errors['Could not find the TACTIC server'] = ""
     return shots, errors
+
+def getFrameRange(shot):
+    frameRange = []
+    errors = {}
+    if server:
+        try:
+            shot = server.eval("@SOBJECT(vfx/shot['code', '%s'])"%shot)[0]
+            frameRange[:] = [shot['frame_in'], shot['frame_out']]
+        except Exception as ex:
+            errors['Could not get the list of Shots from TACTIC'] = str(ex)
+    else:
+        errors['Could not find the TACTIC server'] = ""
+    return frameRange, errors
 
 def getLatestFile(file1, file2):
     latest = file1
@@ -219,7 +265,7 @@ def getExistingCameraNames():
     names = []
     cams = pc.ls(type='camera')
     for cam in cams:
-        names.append(qutil.getNiceName(cam.firstParent().name()).split('_')[-1])
+        names.append(qutil.getNiceName(cam.firstParent().name()))
     return names
     
 

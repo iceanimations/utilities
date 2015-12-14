@@ -9,10 +9,13 @@ import logging
 import tactic_client_lib as tcl
 import os
 import traceback
-import tacticCalls as utils
 import qutil
-
-reload(utils)
+try:
+    import tacticCalls as tc
+    import imaya
+    reload(tc)
+    reload(imaya)
+except: pass
 
 rootPath = osp.dirname(__file__)
 uiPath = osp.join(rootPath, 'ui')
@@ -178,7 +181,7 @@ class TacticUiBase(object):
                     break
                 
     def setServer(self):
-        self.server, errors = utils.setServer()
+        self.server, errors = tc.setServer()
         if errors:
             self.showMessage(msg=errors.keys()[0], icon=QMessageBox.Critical,
                              details=errors.values()[0])
@@ -186,20 +189,20 @@ class TacticUiBase(object):
     def populateProjects(self):
         self.projectBox.clear()
         self.projectBox.addItem('--Select Project--')
-        projects, errors = utils.getProjects()
+        projects, errors = tc.getProjects()
         if errors:
             self.showMessage(msg='Error occurred while retrieving the list of projects from TACTIC',
                              icon=QMessageBox.Critical,
                              details=qutil.dictionaryToDetails(errors))
         if projects:
             self.projectBox.addItems(projects)
-            
+
     def setProject(self, project):
-        qutil.addOptionVar(self.projectKey, project)
+        imaya.addOptionVar(tc.projectKey, project)
         self.epBox.clear()
         self.epBox.addItem('--Select Episode--')
         if project != '--Select Project--':
-            errors = utils.setProject(project)
+            errors = tc.setProject(project)
             if errors:
                 self.showMessage(msg='Error occurred while setting the project on TACTIC',
                                  icon=QMessageBox.Critical,
@@ -209,7 +212,7 @@ class TacticUiBase(object):
     def populateEpisodes(self):
         self.setBusy()
         try:
-            episodes, errors = utils.getEpisodes()
+            episodes, errors = tc.getEpisodes()
             if errors:
                 self.showMessage(msg='Error occurred while retrieving the Episodes',
                                  icon=QMessageBox.Critical,
@@ -222,13 +225,13 @@ class TacticUiBase(object):
             self.releaseBusy()
     
     def populateSequences(self, ep):
-        qutil.addOptionVar(self.epKey, ep)
+        imaya.addOptionVar(tc.episodeKey, ep)
         self.setBusy()
         try:
             self.seqBox.clear()
             self.seqBox.addItem('--Select Sequence--')
             if ep != '--Select Episode--':
-                seqs, errors = utils.getSequences(ep)
+                seqs, errors = tc.getSequences(ep)
                 if errors:
                     self.showMessage(msg='Error occurred while retrieving the Sequences',
                                      icon=QMessageBox.Critical,
