@@ -28,6 +28,8 @@ sequenceKey = 'tacticSeqKey'
 shotKey = 'tacticShotKey'
 contextKey = 'tacticContextKey'
 
+from pprint import pprint
+
 class CCounter(Counter):
     def update_count(self, c):
         for key, value in c.items():
@@ -35,6 +37,7 @@ class CCounter(Counter):
             
 def uploadShotToTactic(path):
     errors = []
+    mappings = {}
     '''uploads cache, preview and camera to Tactic from a given shot path exported by multiShotExport'''
     try:
         if osp.exists(path):
@@ -47,18 +50,25 @@ def uploadShotToTactic(path):
                 except Exception as ex:
                     errors.append(str(ex))
                 if sk:
-                    cotexts = os.listdir(path)
+                    contexts = os.listdir(path)
                     for context in contexts:
                         contextPath = osp.join(path, context)
                         if osp.isdir(contextPath):
                             files = os.listdir(contextPath)
                             if files:
-                                snapshot = server.create_snapshot(sk, context)['code']
-                                server.add_file(snapshot, [osp.join(contextPath, f) for f in files])
+                                snapshot = server.create_snapshot(sk, 'animation/'+context)['code']
+                                types = ['main' for _ in files]
+                                server.add_file(snapshot, [osp.join(contextPath, f) for f in files], mode='copy', file_type=types)
+                            else:
+                                errors.append('No files found in %'%contextPath)
+                        else:
+                            errors.append('%s is not a directory'%contextPath)
+                    if not contexts: errors.append('No contexts found in %s'%path)
             else:
                 errors.append('Could not find TACTIC server')
     except Exception as ex:
         errors.append(str(ex))
+    return '\n'.join(errors)
 
 def setServer(serv=None):
     errors = {}
