@@ -56,7 +56,9 @@ def uploadShotToTactic(path):
                         if osp.isdir(contextPath):
                             files = os.listdir(contextPath)
                             if files:
-                                snapshot = server.create_snapshot(sk, 'animation/'+context)['code']
+                                if context == 'JPG': cont = 'animation/preview/JPG'
+                                else: cont = 'animation/'+ context
+                                snapshot = server.create_snapshot(sk, cont)['code']
                                 types = ['main' for _ in files]
                                 server.add_file(snapshot, [osp.join(contextPath, f) for f in files], mode='copy', file_type=types)
                             else:
