@@ -62,10 +62,11 @@ def uploadShotToTactic(path):
                                 types = ['main' for _ in files]
                                 server.add_file(snapshot, [osp.join(contextPath, f) for f in files], mode='copy', file_type=types)
                             else:
-                                errors.append('No files found in %'%contextPath)
+                                errors.append('Unable to export files for %s'%osp.basename(contextPath))
                         else:
-                            errors.append('%s is not a directory'%contextPath)
-                    if not contexts: errors.append('No contexts found in %s'%path)
+                            pass
+                            #errors.append('%s is not a directory'%contextPath)
+                    if not contexts: errors.append('Nothing found to export')
             else:
                 errors.append('Could not find TACTIC server')
     except Exception as ex:
