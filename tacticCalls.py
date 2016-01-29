@@ -328,7 +328,9 @@ def getAssets(ep, seq, context='shaded/combined'):
             errors['Could not get the maps from TACTIC'] = str(ex)
         if server:
             try:
-                asset_codes = server.eval("@GET(vfx/asset_in_sequence['sequence_code', '%s'].asset_code)"%seq)
+                asset_codes = [asset['asset_code'] for asset in server.query('vfx/asset_in_sequence', filters=[('sequence_code', seq)], columns=['asset_code'])]
+                #asset_codes = server.eval("@GET(vfx/asset_in_sequence['sequence_code', '%s'].asset_code)"%seq)
+                asset_codes = list(set(asset_codes))
             except Exception as ex:
                 errors['Could not get the Sequence Assets from TACTIC'] = str(ex)
             if not asset_codes: return asset_paths, errors
