@@ -269,7 +269,7 @@ def removeAssetFromShot(assets, shot):
 
 def getRefsCount():
     refCounts = Counter()
-    refs = [osp.normpath(str(x.path)) for x in qutil.getReferences()]
+    refs = [osp.normcase(osp.normpath(str(x.path))) for x in qutil.getReferences()]
     if refs:
         refCounts.update(refs)
     return refCounts
