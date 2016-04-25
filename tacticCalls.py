@@ -4,8 +4,6 @@ Created on Oct 30, 2015
 @author: qurban.ali
 '''
 
-import sys
-sys.path.append("R:/Pipe_Repo/Projects/TACTIC")
 import os
 import iutil.symlinks as symlinks
 from auth import user
@@ -17,6 +15,8 @@ import os.path as osp
 import re
 from collections import Counter
 import maya.cmds as cmds
+import iutil
+import app.util as util
 
 pc.mel.eval("source \"R:/Pipe_Repo/Users/Hussain/utilities/loader/command/mel/addInOutAttr.mel\";")
 
@@ -119,6 +119,19 @@ def getEpisodes():
     else:
         errors['Could not find the TACTIC server'] = ""
     return eps, errors
+
+def getShotPath(shot):
+    path = ''
+    errors = {}
+    if server:
+        try:
+            path = server.get_virtual_snapshot_path(server.query('vfx/shot', filters=[('code', shot)]), context='animation')
+            if path: path = util.translatePath(path)
+        except Exception as ex:
+            errors['Could not get the shot Path from TACTIC'] = str(ex)
+    else:
+        errors['Could not find the TACTIC server'] = ""
+    return iutil.dirname(path, 3), errors
     
 def getSequences(ep):
     seqs = []
