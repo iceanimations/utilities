@@ -1,3 +1,5 @@
+from site import addsitedir as asd
+asd('R:/Python_Scripts/plugins')
 import sip
 sip.setapi('QString', 2)
 import nuke
