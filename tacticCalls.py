@@ -377,5 +377,6 @@ def getAssets(ep, seq, context='shaded/combined'):
                     else:
                         asset_paths[ep_asset['asset_code']] = None
                 else:
-                    asset_paths[ep_asset['asset_code']] = None
+                    if not asset_paths.has_key(ep_asset['asset_code']):
+                        asset_paths[ep_asset['asset_code']] = None
     return asset_paths, errors
