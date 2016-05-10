@@ -322,6 +322,11 @@ def checkin(seq, context, desc):
     path = cmds.file(location=True, q=True)
     sk = server.query('vfx/sequence', filters=[('code', seq)])[0]['__search_key__']
     server.simple_checkin(sk, context=context, file_path=path, mode='copy', description=desc)
+    
+def epCheckin(ep, context, desc):
+    path = cmds.file(location=True, q=True)
+    sk = server.query('vfx/episode', filters=[('code', ep)])[0]['__search_key__']
+    server.simple_checkin(sk, context=context, file_path=path, mode='copy', description=desc)
 
 server = None
 
