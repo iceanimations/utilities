@@ -58,7 +58,10 @@ class SelectionBox(Form2, Base2):
 
 Form1, Base1 = uic.loadUiType(osp.join(uiPath, 'multiSelectComboBox.ui'))
 class MultiSelectComboBox(Form1, Base1):
-    selectionDone = pyqtSignal(list)
+    try:
+        selectionDone = pyqtSignal(list)
+    except:
+        selectionDone = Signal(list)
     def __init__(self, parent=None, msg='--Select--'):
         super(MultiSelectComboBox, self).__init__(parent)
         self.setupUi(self)
@@ -295,7 +298,10 @@ def showMessage(parent, title = 'Shot Export',
 
 
 class QTextLogHandler(QObject, logging.Handler):
-    appended = pyqtSignal(str)
+    try:
+        appended = pyqtSignal(str)
+    except:
+        appended = Signal(str)
 
     def __init__(self, text):
         logging.Handler.__init__(self)
