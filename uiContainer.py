@@ -16,6 +16,7 @@ if version in range(2011, 2016):
 else:
     import PySide as PyQt4
     sys.modules["PyQt4"] = PyQt4
+    PyQt4.QtCore.pyqtSignal = PyQt4.QtCore.Signal
     import uiLoader
     import pysideuic as uic
     uic.loadUiType = uiLoader.loadUiType
