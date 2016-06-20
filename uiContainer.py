@@ -15,13 +15,13 @@ if version in range(2011, 2016):
     from PyQt4 import uic
 else:
     import PySide as PyQt4
-    sys.modules["PyQt4"] = PyQt4
     PyQt4.QtCore.pyqtSignal = PyQt4.QtCore.Signal
     import uiLoader
     import pysideuic as uic
     uic.loadUiType = uiLoader.loadUiType
     import shiboken as sip
     sip.wrapinstance = sip.wrapInstance
+    sys.modules["PyQt4"] = PyQt4
     sys.modules['sip'] = sip
 
 for uic_subm in ['.properties', '.uiparser']:
