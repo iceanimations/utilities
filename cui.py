@@ -82,7 +82,7 @@ class MultiSelectComboBox(Form1, Base1):
         checkableAction.setDefaultWidget(button)
         self.menu.addAction(checkableAction)
         btn = self.addItem('Select All')
-        btn.clicked.connect(lambda: self.toggleAll(btn.isChecked()))
+        btn.clicked.connect(lambda: self.toggleAll(btn))
         self.menu.addSeparator()
         
     def invertSelection(self):
@@ -90,9 +90,9 @@ class MultiSelectComboBox(Form1, Base1):
             cBox.setChecked(not cBox.isChecked())
         self.toggleSelectAllButton()
         
-    def toggleAll(self, val):
+    def toggleAll(self, btn):
         for cBox in self.getWidgetItems():
-            cBox.setChecked(val)
+            cBox.setCheckState(btn.checkState())
             
     def toggleSelectAllButton(self):
         flag = True
