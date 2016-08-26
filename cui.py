@@ -62,10 +62,11 @@ class MultiSelectComboBox(Form1, Base1):
         selectionDone = pyqtSignal(list)
     except:
         selectionDone = Signal(list)
-    def __init__(self, parent=None, msg='--Select--'):
+    def __init__(self, parent=None, msg='--Select--', triState=False):
         super(MultiSelectComboBox, self).__init__(parent)
         self.setupUi(self)
         
+        self.triState = triState
         self.msg = msg
         self.menu = QMenu(self)
         self.menu.setStyleSheet("QMenu { menu-scrollable: 1; }")
@@ -124,6 +125,9 @@ class MultiSelectComboBox(Form1, Base1):
         
     def getSelectedItems(self):
         return [cBox.text().strip() for cBox in self.getWidgetItems() if cBox.isChecked()]
+    
+    def getState(self):
+        return {cBox.text().strip(): cBox.checkState() for cBox in self.getWidgetItems()}
         
     def getWidgetItems(self):
         return [cBox for cBox in
@@ -135,6 +139,7 @@ class MultiSelectComboBox(Form1, Base1):
         
     def addItem(self, item, selected=False):
         checkBox = QCheckBox(item, self.menu)
+        checkBox.setTristate(self.triState)
         if selected:
             checkBox.setChecked(True)
         checkableAction = QWidgetAction(self.menu)
