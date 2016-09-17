@@ -24,4 +24,5 @@ def loadUiType(uiFile):
         #Fetch the base_class and form class based on their type in the xml from designer
         form_class = frame['Ui_%s'%form_class]
         base_class = eval('QtGui.%s'%widget_class)
+
     return form_class, base_class

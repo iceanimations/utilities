@@ -4,7 +4,7 @@ from sqlite3 import OperationalError
 def updateDatabase(appName = 'testApp', userName = 'noUser'):
     # get the current user on the windows
     # create connection to the database
-    conn = sqlite3.connect(r'\\nas\storage\.db\Qurban\AppsUsageData\my2.db')
+    conn = sqlite3.connect(r'R:\Pipe_Repo\db\Qurban\AppsUsageData\my2.db')
     # create table for the application if it does not exist
     try:
         conn.execute('create table {0} (userName varchar(50), cnt INTEGER)'.format(appName))
