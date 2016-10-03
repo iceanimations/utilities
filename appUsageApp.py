@@ -8,7 +8,7 @@ def updateDatabase(appName = 'testApp'):
     if userName in ['qurban.ali', 'talha.ahmed', 'hussain.parsaiyan']:
        return
     appUsageApp2.updateDatabase(appName, userName)
-    conn = sqlite3.connect(r'\\nas\storage\.db\Qurban\AppsUsageData\my.db')
+    conn = sqlite3.connect(r'R:\Pipe_Repo\db\Qurban\AppsUsageData\my.db')
     #conn.execute('create table appUsage (id INTEGER PRIMARY KEY, appName varchar(30), used INTEGER)')
     #conn.commit()
     res = conn.execute('select appName from appUsage;')
