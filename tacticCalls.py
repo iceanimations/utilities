@@ -308,9 +308,11 @@ def isSelection():
 
 def addCamera(name, start, end):
     cam = qutil.addCamera(name)
-    pc.mel.eval('addInOutAttr;')
-    cam.attr('in').set(start); cam.out.set(end)
+    #pc.mel.eval('addInOutAttr;')
+    #cam.attr('in').set(start); cam.out.set(end)
     addKeys.add([cam], start, end)
+    cam.nearClipPlane.set(1)
+    cam.farClipPlane.set(10000000)
     
 def isModified():
     return cmds.file(modified=True, q=True)
