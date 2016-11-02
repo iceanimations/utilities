@@ -41,6 +41,6 @@ def reread():
     rr.read()
 
 def replaceBackdropCameras():
-    import replaceCameras
-    reload(replaceCameras)
-    replaceCameras.replaceBackdropCameras()
+    import replaceCamera
+    reload(replaceCamera)
+    replaceCamera.replaceBackdropCameras()
