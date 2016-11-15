@@ -39,3 +39,8 @@ def reread():
     import rereadFrameRange as rr
     reload(rr)
     rr.read()
+
+def replaceBackdropCameras():
+    import replaceCamera
+    reload(replaceCamera)
+    replaceCamera.replaceBackdropCameras()

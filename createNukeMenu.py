@@ -23,7 +23,9 @@ nukeMenu = {
             'Set Nearest Frame': [setNearestFrame, 'Ctrl+Alt+N'],
             'Auto Increment Save': [saveIncrement, 'Ctrl+Alt+I'],
             'Add Write Node': [addWriteNodes, 'Ctrl+Alt+W'],
-            'Reread Frame Range': [reread, 'Ctrl+Alt+F']
+            'Reread Frame Range': [reread, 'Ctrl+Alt+F'],
+            'Replace Cameras In Backdrops': [replaceBackdropCameras,
+                'Ctrl+Alt+C']
             }
 menuName = 'ICE Scripts/'
 def create():
