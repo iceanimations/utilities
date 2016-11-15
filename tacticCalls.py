@@ -207,6 +207,9 @@ def getAssetsInSeq(ep, seq):
             if not snapshot:
                 snapshot = server.get_snapshot(epAsset, context='model', version=0, versionless=True, include_paths_dict=True)
                 context = 'model'
+            if not snapshot:
+                snapshot = server.get_snapshot(epAsset, context='shaded', version=0, versionless=True, include_paths_dict=True)
+                context='shaded'
             if snapshot:
                 paths = snapshot['__paths_dict__']
                 if paths:
