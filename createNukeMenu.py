@@ -25,7 +25,8 @@ nukeMenu = {
             'Add Write Node': [addWriteNodes, 'Ctrl+Alt+W'],
             'Reread Frame Range': [reread, 'Ctrl+Alt+F'],
             'Replace Cameras In Backdrops': [replaceBackdropCameras,
-                'Ctrl+Alt+C']
+                'Ctrl+Alt+C'],
+            'Render Threads': [renderThreads, '']
             }
 menuName = 'ICE Scripts/'
 def create():

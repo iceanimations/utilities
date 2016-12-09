@@ -43,4 +43,9 @@ def reread():
 def replaceBackdropCameras():
     import replaceCamera
     reload(replaceCamera)
-    replaceCamera.replaceBackdropCameras()
+    print replaceCamera.replaceBackdropCameras()
+
+def renderThreads():
+    from renderthreads import renderthreads
+    reload(renderthreads)
+    renderthreads.run()
