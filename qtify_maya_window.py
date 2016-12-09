@@ -5,7 +5,6 @@ import uiContainer
 from PyQt4 import QtGui, QtCore
 from sip import wrapinstance as wrap
 
-
 def getMayaWindow():
         """
         Get the main Maya window as a QtGui.QMainWindow instance
