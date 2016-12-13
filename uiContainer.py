@@ -4,6 +4,7 @@ import sys
 import logging
 
 uic = None
+sip = None
 
 def setUicLoggingLevel(level=logging.INFO):
     for uic_subm in ['.properties', '.uiparser']:
@@ -21,6 +22,7 @@ def setPySide():
     global uic
     import PySide as PyQt4
     PyQt4.QtCore.pyqtSignal = PyQt4.QtCore.Signal
+    PyQt4.QtCore.pyqtSlot = PyQt4.QtCore.Slot
     import uiLoader
     import pysideuic as uic
     setUicLoggingLevel()
@@ -31,7 +33,8 @@ def setPySide():
     sys.modules['sip'] = sip
 
 def setSipApiVersion(version=2):
-    API_NAMES = ["QDate", "QDateTime", "QString", "QTextStream", "QTime", "QUrl", "QVariant"]
+    API_NAMES = ["QDate", "QDateTime", "QString", "QTextStream", "QTime",
+            "QUrl", "QVariant"]
     API_VERSION = 2
     for name in API_NAMES:
         sip.setapi(name, API_VERSION)
