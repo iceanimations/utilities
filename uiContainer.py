@@ -32,6 +32,7 @@ def setPySide():
 
     import PySide as PyQt4
     import PySide.QtCore as QtCore
+    import PySide.QtGui as QtGui
     import uiLoader
     import pysideuic as uic
     import shiboken as sip
@@ -46,12 +47,12 @@ def setPySide():
     sys.modules["PyQt4.QtCore"] = QtCore
     sys.modules["sip"] = sip
     sys.modules["PyQt4.uic"] = uic
+    sys.modules["PyQt4.QtGui"] = QtGui
 
 def _setPySide():
     try:
         setPySide()
     except ImportError:
-        print 'cant set pyside'
         setPyQt4()
 
 try:
