@@ -1,43 +1,58 @@
+import logging
 import re
 import site
 import sys
-import logging
 
 uic = None
 sip = None
 
-def setUicLoggingLevel(level=logging.INFO):
+def setUicLoggingLevel(uic, level=logging.INFO):
     for uic_subm in ['.properties', '.uiparser']:
         logger = logging.getLogger(uic.__name__ + uic_subm)
         logger.setLevel(level)
 
-def setPyQt4():
-    global uic, sip
-    from PyQt4 import uic
-    import sip
-    setUicLoggingLevel()
-    setSipApiVersion()
-
-def setPySide():
-    global uic
-    import PySide as PyQt4
-    PyQt4.QtCore.pyqtSignal = PyQt4.QtCore.Signal
-    PyQt4.QtCore.pyqtSlot = PyQt4.QtCore.Slot
-    import uiLoader
-    import pysideuic as uic
-    setUicLoggingLevel()
-    uic.loadUiType = uiLoader.loadUiType
-    import shiboken as sip
-    sip.wrapinstance = sip.wrapInstance
-    sys.modules["PyQt4"] = PyQt4
-    sys.modules['sip'] = sip
-
-def setSipApiVersion(version=2):
+def setSipApiVersion(sip, version=2):
     API_NAMES = ["QDate", "QDateTime", "QString", "QTextStream", "QTime",
             "QUrl", "QVariant"]
-    API_VERSION = 2
+    API_VERSION = version
     for name in API_NAMES:
         sip.setapi(name, API_VERSION)
+
+def setPyQt4():
+    global uic, sip
+
+    from PyQt4 import uic
+    import sip
+
+    setUicLoggingLevel(uic)
+    setSipApiVersion(sip)
+
+def setPySide():
+    global uic, sip
+
+    import PySide as PyQt4
+    import PySide.QtCore as QtCore
+    import uiLoader
+    import pysideuic as uic
+    import shiboken as sip
+
+    QtCore.pyqtSignal = QtCore.Signal
+    QtCore.pyqtSlot = QtCore.Slot
+    uic.loadUiType = uiLoader.loadUiType
+    sip.wrapinstance = sip.wrapInstance
+    setUicLoggingLevel(uic)
+
+    sys.modules["PyQt4"] = PyQt4
+    sys.modules["PyQt4.QtCore"] = QtCore
+    sys.modules["sip"] = sip
+    sys.modules["PyQt4.uic"] = uic
+
+def _setPySide():
+    try:
+        setPySide()
+    except ImportError:
+        print 'cant set pyside'
+        setPyQt4()
 
 try:
     import pymel.core as pc
@@ -46,9 +61,6 @@ try:
         site.addsitedir(r"R:\Python_Scripts\maya"+str(version)+r"\PyQt")
         setPyQt4()
     else:
-        setPySide()
+        _setPySide()
 except ImportError:
-    try:
-        setPySide()
-    except ImportError:
-        setPyQt4()
+    _setPySide()
