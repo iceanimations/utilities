@@ -10,6 +10,9 @@ import tactic_client_lib as tcl
 import os
 import traceback
 import qutil
+reload(qutil)
+import iutil
+reload(iutil)
 try:
     import tacticCalls as tc
     import imaya
@@ -201,12 +204,15 @@ class TacticUiBase(object):
         if errors:
             self.showMessage(msg='Error occurred while retrieving the list of projects from TACTIC',
                              icon=QMessageBox.Critical,
-                             details=qutil.dictionaryToDetails(errors))
+                             details=iutil.dictionaryToDetails(errors))
         if projects:
             self.projectBox.addItems(projects)
 
     def setProject(self, project):
-        imaya.addOptionVar(tc.projectKey, project)
+        self.setBusy()
+        try:
+            imaya.addOptionVar(tc.projectKey, project)
+        except: pass
         self.epBox.clear()
         self.epBox.addItem('--Select Episode--')
         if project != '--Select Project--':
@@ -216,6 +222,7 @@ class TacticUiBase(object):
                                  icon=QMessageBox.Critical,
                                  details=qutil.dictionaryToDetails(errors))
             self.populateEpisodes()
+        self.releaseBusy()
     
     def populateEpisodes(self):
         self.setBusy()

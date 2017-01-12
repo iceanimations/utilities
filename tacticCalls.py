@@ -7,18 +7,22 @@ Created on Oct 30, 2015
 import os
 import iutil.symlinks as symlinks
 from auth import user
-import pymel.core as pc
 import tactic_client_lib as tcl
 import qutil
-import addKeys
 import os.path as osp
 import re
 from collections import Counter
-import maya.cmds as cmds
+try:
+    import maya.cmds as cmds
+    import pymel.core as pc
+    import addKeys
+except: pass
 import iutil
 import app.util as util
 
-pc.mel.eval("source \"R:/Pipe_Repo/Users/Hussain/utilities/loader/command/mel/addInOutAttr.mel\";")
+try:
+    pc.mel.eval("source \"R:/Pipe_Repo/Users/Hussain/utilities/loader/command/mel/addInOutAttr.mel\";")
+except: pass
 
 server = None
 # define keys for optionVar and fileInfo
@@ -80,6 +84,10 @@ def setServer(serv=None):
     try:
         if user.user_registered():
             server = user.get_server()
+        else:
+            user.login('tactic', 'tactic123')
+            server = user.get_server()
+            server.set_project('test_mansour_ep')
     except Exception as ex:
         errors['Could not connect to TACTIC'] = str(ex)
     return server, errors
@@ -178,6 +186,24 @@ def getLatestFile(file1, file2):
         latest = file2
     return latest
 
+def getAssetsInEp(ep):
+    errors = {}
+    assets = []
+    try:
+        assets[:] = server.eval("@GET(vfx/asset_in_episode['episode_code', '%s'].asset_code)"%ep)
+    except Exception as ex:
+        errors['Could not retrieve the list of asset in selected Episode'] = str(ex)
+    return assets, errors 
+
+def assetsInSeq(seq):
+    seqAssets = None
+    errors = {}
+    try:
+        seqAssets = server.eval("@GET(vfx/asset_in_sequence['sequence_code', '%s'].asset_code)"%seq)
+    except Exception as ex:
+        errors['Could not retrieve assets from TACTIC for %s'%seq] = str(ex)
+    return seqAssets, errors
+
 def getAssetsInSeq(ep, seq):
     assets = {}
     errors = {}
@@ -186,49 +212,52 @@ def getAssetsInSeq(ep, seq):
             maps = symlinks.getSymlinks(server.get_base_dirs()['win32_client_repo_dir'])
         except Exception as ex:
             errors['Could not retrieve the maps from TACTIC'] = str(ex)
+        seqAssets = None
         try:
             seqAssets = server.eval("@GET(vfx/asset_in_sequence['sequence_code', '%s'].asset_code)"%seq)
         except Exception as ex:
             errors['Could not retrieve assets from TACTIC for %s'%seq] = str(ex)
         if not seqAssets:
             errors['No Asset found in %s'%seq] = ''
+        epAssets = []
         try:
-            epAssets = server.query('vfx/asset_in_episode', filters=[('asset_code', seqAssets), ('episode_code', ep)])
+            epAssets[:] = server.query('vfx/asset_in_episode', filters=[('asset_code', seqAssets), ('episode_code', ep)])
         except Exception as ex:
             errors['Could not retrieve asset from TACTIC for %s'%ep] = str(ex)
         if not epAssets:
             errors['No published Assets found in %s'%ep] = ''
-        for epAsset in epAssets:
-            try:
-                snapshot = server.get_snapshot(epAsset, context='rig', version=0, versionless=True, include_paths_dict=True)
-                context = 'rig'
-            except Exception as ex:
-                errors['Could not get the Snapshot from TACTIC for %s'%epAsset['asset_code']] = str(ex)
-            if not snapshot:
-                snapshot = server.get_snapshot(epAsset, context='model', version=0, versionless=True, include_paths_dict=True)
-                context = 'model'
-            if not snapshot:
-                snapshot = server.get_snapshot(epAsset, context='shaded', version=0, versionless=True, include_paths_dict=True)
-                context='shaded'
-            if snapshot:
-                paths = snapshot['__paths_dict__']
-                if paths:
-                    newPaths = None
-                    if paths.has_key('maya'):
-                        newPaths = paths['maya']
-                    elif paths.has_key('main'):
-                        newPaths = paths['main']
-                    else:
-                        errors['Could not find a Maya file for %s'%epAsset['asset_code']] = 'No Maya or Main key found'
-                    if newPaths:
-                        if len(newPaths) > 1:
-                            assets[epAsset['asset_code']] = [context, symlinks.translatePath(getLatestFile(*newPaths), maps)]
+        else:
+            for epAsset in epAssets:
+                try:
+                    snapshot = server.get_snapshot(epAsset, context='rig', version=0, versionless=True, include_paths_dict=True)
+                    context = 'rig'
+                except Exception as ex:
+                    errors['Could not get the Snapshot from TACTIC for %s'%epAsset['asset_code']] = str(ex)
+                if not snapshot:
+                    snapshot = server.get_snapshot(epAsset, context='model', version=0, versionless=True, include_paths_dict=True)
+                    context = 'model'
+                if not snapshot:
+                    snapshot = server.get_snapshot(epAsset, context='shaded', version=0, versionless=True, include_paths_dict=True)
+                    context='shaded'
+                if snapshot:
+                    paths = snapshot['__paths_dict__']
+                    if paths:
+                        newPaths = None
+                        if paths.has_key('maya'):
+                            newPaths = paths['maya']
+                        elif paths.has_key('main'):
+                            newPaths = paths['main']
                         else:
-                            assets[epAsset['asset_code']] = [context, symlinks.translatePath(newPaths[0], maps)]
+                            errors['Could not find a Maya file for %s'%epAsset['asset_code']] = 'No Maya or Main key found'
+                        if newPaths:
+                            if len(newPaths) > 1:
+                                assets[epAsset['asset_code']] = [context, symlinks.translatePath(getLatestFile(*newPaths), maps)]
+                            else:
+                                assets[epAsset['asset_code']] = [context, symlinks.translatePath(newPaths[0], maps)]
+                        else:
+                            errors[epAsset['asset_code']] = 'No Maya file found'
                     else:
-                        errors[epAsset['asset_code']] = 'No Maya file found'
-                else:
-                    errors[epAsset['asset_code']] = 'No Paths found to a file'
+                        errors[epAsset['asset_code']] = 'No Paths found to a file'
     else:
         errors['Could not find the TACTIC server'] = ""
     return assets, errors
@@ -279,6 +308,44 @@ def removeAssetFromShot(assets, shot):
                 errors['No Asset found on TACTIC for %s'%shot] = ''
         except Exception as ex:
             errors['Could not delete Assets from %s'%shot] = str(ex)
+    else:
+        errors['Could not find the TACTIC server'] = ""
+    return errors
+
+def addAssetsToSeq(assets, seq):
+    errors = {}
+    if server:
+        data = [{'asset_code': asset, 'sequence_code': seq} for asset in assets]
+        try:
+            server.insert_multiple('vfx/asset_in_sequence', data)
+        except Exception as ex:
+            errors['Could not add Assets to TACTIC'] = str(ex)
+    else:
+        errors['Could not find the TACTIC server'] = ""
+    return errors
+
+def removeAssetsFromSeq(assets, seq):
+    assetCount = Counter(assets)
+    errors = {}
+    if server:
+        try:
+            sobjects = server.query('vfx/asset_in_sequence')
+            if sobjects:
+                sks = []
+                for asset, cnt in assetCount.items():
+                    for _ in range(cnt):
+                        for sobj in sobjects:
+                            if sobj['asset_code'] == asset and sobj['sequence_code'] == seq:
+                                if sobj['__search_key__'] not in sks:
+                                    sks.append(sobj['__search_key__'])
+                                    break
+                if sks:
+                    for sk in sks:
+                        server.delete_sobject(sk)
+            else:
+                errors['No Asset found on TACTIC for %s'%seq] = ''
+        except Exception as ex:
+            errors['Could not delete Assets from %s'%seq] = str(ex)
     else:
         errors['Could not find the TACTIC server'] = ""
     return errors
