@@ -2,6 +2,7 @@ import sqlite3
 import appUsageApp2
 reload(appUsageApp2)
 import os
+from datetime import datetime
 
 def updateDatabase(appName = 'testApp'):
     userName = os.environ['USERNAME']
@@ -17,7 +18,7 @@ def updateDatabase(appName = 'testApp'):
         if appName == record[0]:
             flag = True
     if not flag:
-        conn.execute('insert into appUsage values(NULL, \'{0}\', \'1\')'.format(appName))
+        conn.execute('insert into appUsage values(NULL, \'{0}\', \'1\', \'{1}\')'.format(appName, str(datetime.today().date())))
         conn.commit()
         return
     res = conn.execute('select used from appUsage where appName =\'{0}\';'.format(appName))
@@ -25,6 +26,6 @@ def updateDatabase(appName = 'testApp'):
     val = res.fetchone()[0]
     if val is not None:
         val += 1
-        conn.execute('UPDATE appUsage SET used = \'{0}\' WHERE appName = \'{1}\';'.format(val, appName))
+        conn.execute('UPDATE appUsage SET used = \'{0}\', lastUsed = \'{2}\' WHERE appName = \'{1}\';'.format(val, appName, str(datetime.today().date())))
         conn.commit()
     conn.close()
