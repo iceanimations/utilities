@@ -1,5 +1,6 @@
 import sqlite3
 from sqlite3 import OperationalError
+from datetime import datetime
 
 def updateDatabase(appName = 'testApp', userName = 'noUser'):
     # get the current user on the windows
