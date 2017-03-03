@@ -65,3 +65,8 @@ try:
         _setPySide()
 except ImportError:
     _setPySide()
+
+def getPathsFromFileDialogResult(result):
+    if result and isinstance(result, tuple):
+        return result[0]
+    return result
