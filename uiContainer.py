@@ -2,6 +2,7 @@ import logging
 import re
 import site
 import sys
+import types
 
 uic = None
 sip = None
@@ -43,6 +44,20 @@ def setPySide():
     sip.wrapinstance = sip.wrapInstance
     setUicLoggingLevel(uic)
 
+    setattr(QtGui.QFileDialog, 'getOpenFileNameAndFilter',
+            QtGui.QFileDialog.getOpenFileName)
+    setattr(QtGui.QFileDialog, 'getOpenFileNamesAndFilter',
+            QtGui.QFileDialog.getOpenFileNames)
+    setattr(QtGui.QFileDialog, 'getSaveFileNameAndFilter',
+            QtGui.QFileDialog.getSaveFileName)
+
+    QtGui.QFileDialog.getOpenFileName = _pg(
+            QtGui.QFileDialog.getOpenFileName )
+    QtGui.QFileDialog.getOpenFileNames= _pg(
+            QtGui.QFileDialog.getOpenFileNames )
+    QtGui.QFileDialog.getSaveFileName = _pg(
+            QtGui.QFileDialog.getSaveFileName )
+
     sys.modules["PyQt4"] = PyQt4
     sys.modules["PyQt4.QtCore"] = QtCore
     sys.modules["sip"] = sip
@@ -65,6 +80,14 @@ try:
         _setPySide()
 except ImportError:
     _setPySide()
+
+
+def _pg(fileDiagFunc):
+    ':type fileDiagFunc: types.MethodType'
+    def _pathGetterWrapper(*args, **kwargs):
+        return getPathsFromFileDialogResult(fileDiagFunc(*args, **kwargs))
+    _pathGetterWrapper.__doc__ = fileDiagFunc.__doc__
+    return _pathGetterWrapper
 
 def getPathsFromFileDialogResult(result):
     if result and isinstance(result, tuple):
