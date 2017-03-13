@@ -19,6 +19,7 @@ try:
 except: pass
 import iutil
 import app.util as util
+from pprint import pprint
 
 try:
     pc.mel.eval("source \"R:/Pipe_Repo/Users/Hussain/utilities/loader/command/mel/addInOutAttr.mel\";")
@@ -77,7 +78,7 @@ def uploadShotToTactic(path):
         errors.append(str(ex))
     return '\n'.join(errors)
 
-def setServer(serv=None):
+def setServer(serv=None, project=None):
     errors = {}
     global server
     if serv: server = serv; return
@@ -87,7 +88,8 @@ def setServer(serv=None):
         else:
             user.login('tactic', 'tactic123')
             server = user.get_server()
-            server.set_project('test_mansour_ep')
+            if not project: project = 'test_mansour_ep'
+            server.set_project(project)
     except Exception as ex:
         errors['Could not connect to TACTIC'] = str(ex)
     return server, errors
@@ -393,7 +395,8 @@ def getExt():
 def checkin(seq, context, desc):
     path = cmds.file(location=True, q=True)
     sk = server.query('vfx/sequence', filters=[('code', seq)])[0]['__search_key__']
-    server.simple_checkin(sk, context=context, file_path=path, mode='copy', description=desc)
+    snapshot = server.simple_checkin(sk, context=context, file_path=path, mode='copy', description=desc)['__file_sobjects__'][0]
+    return osp.join(snapshot['checkin_dir'], snapshot['file_name'])
     
 def epCheckin(ep, context, desc):
     path = cmds.file(location=True, q=True)
