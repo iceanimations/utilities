@@ -7,17 +7,17 @@ import types
 uic = None
 sip = None
 
+def getPathsFromFileDialogResult(result):
+    if result and isinstance(result, tuple):
+        return result[0]
+    return result
+
 def _pg(fileDiagFunc):
     ':type fileDiagFunc: types.MethodType'
     def _pathGetterWrapper(*args, **kwargs):
         return getPathsFromFileDialogResult(fileDiagFunc(*args, **kwargs))
     _pathGetterWrapper.__doc__ = fileDiagFunc.__doc__
     return _pathGetterWrapper
-
-def getPathsFromFileDialogResult(result):
-    if result and isinstance(result, tuple):
-        return result[0]
-    return result
 
 def setUicLoggingLevel(uic, level=logging.INFO):
     for uic_subm in ['.properties', '.uiparser']:
