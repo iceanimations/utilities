@@ -12,7 +12,7 @@ def getMayaWindow():
         """
         ptr = apiUI.MQtUtil.mainWindow()
         if ptr is not None:
-            return wrap(long(ptr), QtGui.QWidget)
+            return wrap(long(ptr), QtGui.QMainWindow)
 
 def toQtObject(mayaName):
         """
