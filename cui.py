@@ -276,7 +276,8 @@ class TacticUiBase(object):
             ep = ''
         return ep
 
-class MessageBox(QMessageBox):
+Form, Base = uic.loadUiType(osp.join(uiPath, 'msgBox.ui'))
+class MessageBox(Form, QMessageBox):
     def __init__(self, parent=None):
         super(MessageBox, self).__init__(parent)
 
