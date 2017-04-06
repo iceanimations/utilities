@@ -82,5 +82,14 @@ def _setPySide():
     except ImportError:
         setPyQt4()
 
-_setPySide()
+try:
+    import pymel.core as pc
+    version = int(re.search('\\d{4}', pc.about(v=True)).group())
+    if version in range(2011, 2016):
+        site.addsitedir(r"R:\Python_Scripts\maya"+str(version)+r"\PyQt")
+        setPyQt4()
+    else:
+        _setPySide()
+except ImportError:
+    _setPySide()
 
