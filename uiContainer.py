@@ -85,7 +85,7 @@ def _setPySide():
 try:
     import pymel.core as pc
     version = int(re.search('\\d{4}', pc.about(v=True)).group())
-    if version in range(2011, 2016):
+    if version in range(2011, 2018):
         site.addsitedir(r"R:\Python_Scripts\maya"+str(version)+r"\PyQt")
         setPyQt4()
     else:
