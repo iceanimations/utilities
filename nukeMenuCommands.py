@@ -49,3 +49,9 @@ def renderThreads():
     from renderthreads import renderthreads
     reload(renderthreads)
     renderthreads.run()
+
+def selectErrorNodes():
+    from errorNodes import main, error_nodes
+    reload(error_nodes)
+    reload(main)
+    main.main()

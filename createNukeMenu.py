@@ -27,6 +27,7 @@ nukeMenu = {
             'Replace Cameras In Backdrops': [replaceBackdropCameras,
                 'Ctrl+Alt+C'],
             'Render Threads': [renderThreads, '']
+            'Select Error Nodes': [selectErrorNodes]
             }
 menuName = 'ICE Scripts/'
 def create():
