@@ -1,11 +1,14 @@
 from site import addsitedir as asd
 asd('R:/Python_Scripts/plugins')
+
 import sip
 sip.setapi('QString', 2)
+
 import nuke
 import nukeMenuCommands
 reload(nukeMenuCommands)
 from nukeMenuCommands import *
+
 import startup
 reload(startup)
 
@@ -25,15 +28,17 @@ nukeMenu = {
             'Add Write Node': [addWriteNodes, 'Ctrl+Alt+W'],
             'Reread Frame Range': [reread, 'Ctrl+Alt+F'],
             'Replace Cameras In Backdrops': [replaceBackdropCameras,
-                'Ctrl+Alt+C'],
+                                             'Ctrl+Alt+C'],
             'Render Threads': [renderThreads, ''],
             'Select Error Nodes': [selectErrorNodes, '']
-            }
+}
+
 menuName = 'ICE Scripts/'
+
+
 def create():
     nuke.menu('Nuke').removeItem(menuName[0:-1])
     for name, func in nukeMenu.items():
-        nuke.menu('Nuke').addCommand(menuName+ name, func[0], func[1])
+        nuke.menu('Nuke').addCommand(menuName+name, func[0], func[1])
     nuke.menu('Nuke').menu(menuName[0:-1]).addSeparator()
     nuke.menu('Nuke').addCommand(menuName+'Rebuild this Menu', rebuildMenu)
-    
