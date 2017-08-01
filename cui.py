@@ -6,25 +6,27 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import os.path as osp
 import logging
-import tactic_client_lib as tcl
-import os
-import traceback
 import qutil
-reload(qutil)
 import iutil
-reload(iutil)
+
 try:
     import tacticCalls as tc
     import imaya
     reload(tc)
     reload(imaya)
-except: pass
+except:
+    pass
+
+reload(qutil)
+reload(iutil)
 
 rootPath = osp.dirname(__file__)
 uiPath = osp.join(rootPath, 'ui')
 iconPath = osp.join(rootPath, 'icons')
 
 Form2, Base2 = uic.loadUiType(osp.join(uiPath, 'selectionBox.ui'))
+
+
 class SelectionBox(Form2, Base2):
     def __init__(self, parent=None, items=None, msg=''):
         '''
@@ -32,52 +34,60 @@ class SelectionBox(Form2, Base2):
         '''
         super(SelectionBox, self).__init__(parent)
         self.setupUi(self)
-        
+
         self.setMessage(msg)
         self.okButton.clicked.connect(self.ok)
-        
+
         self.selectedItems = []
         self.items = items
         for item in items:
             self.itemsLayout.addWidget(item)
-            
+
     def setCancelToolTip(self, tip):
         self.cancelButton.setToolTip(tip)
-        
+
     def setMessage(self, msg):
         self.msgLabel.setText(msg)
-        
+
     def ok(self):
         if not [item for item in self.items if item.isChecked()]:
-            showMessage(self, title='Items Selection',
-                        msg='Please select at least one item',
-                        icon=QMessageBox.Information)
+            showMessage(
+                self,
+                title='Items Selection',
+                msg='Please select at least one item',
+                icon=QMessageBox.Information)
             return
-        self.selectedItems = [item.text() for item in self.items if item.isChecked()]
+        self.selectedItems = [
+            item.text() for item in self.items if item.isChecked()
+        ]
         self.accept()
-        
+
     def getSelectedItems(self):
         return self.selectedItems
 
+
 Form1, Base1 = uic.loadUiType(osp.join(uiPath, 'multiSelectComboBox.ui'))
+
+
 class MultiSelectComboBox(Form1, Base1):
     try:
         selectionDone = pyqtSignal(list)
     except:
         selectionDone = Signal(list)
+
     def __init__(self, parent=None, msg='--Select--', triState=False):
         super(MultiSelectComboBox, self).__init__(parent)
         self.setupUi(self)
-        
+
         self.triState = triState
         self.msg = msg
         self.menu = QMenu(self)
         self.menu.setStyleSheet("QMenu { menu-scrollable: 1; }")
         self.button.setMenu(self.menu)
-        
+
         self.menu.hideEvent = self.menuHideEvent
         self.setHintText(self.msg)
-        
+
     def addDefaultWidgets(self):
         button = QPushButton('Invert Selection', self)
         button.clicked.connect(self.invertSelection)
@@ -87,16 +97,16 @@ class MultiSelectComboBox(Form1, Base1):
         btn = self.addItem('Select All')
         btn.clicked.connect(lambda: self.toggleAll(btn))
         self.menu.addSeparator()
-        
+
     def invertSelection(self):
         for cBox in self.getWidgetItems():
             cBox.setChecked(not cBox.isChecked())
         self.toggleSelectAllButton()
-        
+
     def toggleAll(self, btn):
         for cBox in self.getWidgetItems():
             cBox.setCheckState(btn.checkState())
-            
+
     def toggleSelectAllButton(self):
         flag = True
         for cBox in self.getWidgetItems():
@@ -109,10 +119,10 @@ class MultiSelectComboBox(Form1, Base1):
             widget = action.defaultWidget()
             if widget.text() == 'Select All':
                 widget.setChecked(flag)
-        
+
     def setHintText(self, text):
         self.button.setText(text)
-        
+
     def menuHideEvent(self, event):
         items = self.getSelectedItems()
         if items:
@@ -125,21 +135,33 @@ class MultiSelectComboBox(Form1, Base1):
         if event:
             QMenu.hideEvent(self.menu, event)
         self.selectionDone.emit(items)
-        
+
     def getSelectedItems(self):
-        return [cBox.text().strip() for cBox in self.getWidgetItems() if cBox.isChecked()]
-    
+        return [
+            cBox.text().strip() for cBox in self.getWidgetItems()
+            if cBox.isChecked()
+        ]
+
     def getState(self):
-        return {cBox.text().strip(): cBox.checkState() for cBox in self.getWidgetItems()}
-        
+        return {
+            cBox.text().strip(): cBox.checkState()
+            for cBox in self.getWidgetItems()
+        }
+
     def getWidgetItems(self):
-        return [cBox for cBox in
-                [action.defaultWidget() for action in
-                 self.menu.actions() if not type(action) is QAction] if cBox.text().strip() != 'Select All' and cBox.text().strip() != 'Invert Selection']
-        
+        return [
+            cBox
+            for cBox in [
+                action.defaultWidget() for action in self.menu.actions()
+                if not type(action) is QAction
+            ]
+            if cBox.text().strip() != 'Select All' and
+            cBox.text().strip() != 'Invert Selection'
+        ]
+
     def getItems(self):
         return [cBox.text().strip() for cBox in self.getWidgetItems()]
-        
+
     def addItem(self, item, selected=False):
         checkBox = QCheckBox(item, self.menu)
         checkBox.setTristate(self.triState)
@@ -149,7 +171,7 @@ class MultiSelectComboBox(Form1, Base1):
         checkableAction.setDefaultWidget(checkBox)
         self.menu.addAction(checkableAction)
         return checkBox
-    
+
     def appendItems(self, items, selected=None):
         self.addItems(items, selected=selected, clear=False)
 
@@ -170,10 +192,12 @@ class MultiSelectComboBox(Form1, Base1):
     def clearItems(self):
         self.menu.clear()
         self.setHintText(self.msg)
-        
+
+
 class TacticUiBase(object):
     '''This class contains useful methods for UIs that contain TACTIC
     Project, Episode, Sequence and Shot selector boxes'''
+
     def setContext(self, pro, ep, seq):
         if pro:
             for i in range(self.projectBox.count()):
@@ -190,21 +214,25 @@ class TacticUiBase(object):
                 if self.seqBox.itemText(i) == seq:
                     self.seqBox.setCurrentIndex(i)
                     break
-                
+
     def setServer(self):
         self.server, errors = tc.setServer()
         if errors:
-            self.showMessage(msg=errors.keys()[0], icon=QMessageBox.Critical,
-                             details=errors.values()[0])
+            self.showMessage(
+                msg=errors.keys()[0],
+                icon=QMessageBox.Critical,
+                details=errors.values()[0])
 
     def populateProjects(self):
         self.projectBox.clear()
         self.projectBox.addItem('--Select Project--')
         projects, errors = tc.getProjects()
         if errors:
-            self.showMessage(msg='Error occurred while retrieving the list of projects from TACTIC',
-                             icon=QMessageBox.Critical,
-                             details=iutil.dictionaryToDetails(errors))
+            self.showMessage(
+                msg=('Error occurred while retrieving the list of projects'
+                     ' from TACTIC'),
+                icon=QMessageBox.Critical,
+                details=iutil.dictionaryToDetails(errors))
         if projects:
             self.projectBox.addItems(projects)
 
@@ -212,33 +240,36 @@ class TacticUiBase(object):
         self.setBusy()
         try:
             imaya.addOptionVar(tc.projectKey, project)
-        except: pass
+        except:
+            pass
         self.epBox.clear()
         self.epBox.addItem('--Select Episode--')
         if project != '--Select Project--':
             errors = tc.setProject(project)
             if errors:
-                self.showMessage(msg='Error occurred while setting the project on TACTIC',
-                                 icon=QMessageBox.Critical,
-                                 details=qutil.dictionaryToDetails(errors))
+                self.showMessage(
+                    msg='Error occurred while setting the project on TACTIC',
+                    icon=QMessageBox.Critical,
+                    details=qutil.dictionaryToDetails(errors))
             self.populateEpisodes()
         self.releaseBusy()
-    
+
     def populateEpisodes(self):
         self.setBusy()
         try:
             episodes, errors = tc.getEpisodes()
             if errors:
-                self.showMessage(msg='Error occurred while retrieving the Episodes',
-                                 icon=QMessageBox.Critical,
-                                 details=qutil.dictionaryToDetails(errors))
+                self.showMessage(
+                    msg='Error occurred while retrieving the Episodes',
+                    icon=QMessageBox.Critical,
+                    details=qutil.dictionaryToDetails(errors))
             self.epBox.addItems(episodes)
         except Exception as ex:
             self.releaseBusy()
             self.showMessage(msg=str(ex), icon=QMessageBox.Critical)
         finally:
             self.releaseBusy()
-    
+
     def populateSequences(self, ep):
         imaya.addOptionVar(tc.episodeKey, ep)
         self.setBusy()
@@ -248,35 +279,39 @@ class TacticUiBase(object):
             if ep != '--Select Episode--':
                 seqs, errors = tc.getSequences(ep)
                 if errors:
-                    self.showMessage(msg='Error occurred while retrieving the Sequences',
-                                     icon=QMessageBox.Critical,
-                                     details=qutil.dictionaryToDetails(errors))
+                    self.showMessage(
+                        msg='Error occurred while retrieving the Sequences',
+                        icon=QMessageBox.Critical,
+                        details=qutil.dictionaryToDetails(errors))
                 self.seqBox.addItems(seqs)
         except Exception as ex:
             self.releaseBusy()
             self.showMessage(msg=str(ex), icon=QMessageBox.Critical)
         finally:
             self.releaseBusy()
-            
+
     def getSequence(self):
         seq = self.seqBox.currentText()
         if seq == '--Select Sequence--':
             seq = ''
         return seq
-    
+
     def getProject(self):
         pro = self.projectBox.currentText()
         if pro == '--Select Project--':
             pro = ''
         return pro
-    
+
     def getEpisode(self):
         ep = self.epBox.currentText()
         if ep == '--Select Episode--':
             ep = ''
         return ep
 
+
 Form, Base = uic.loadUiType(osp.join(uiPath, 'msgBox.ui'))
+
+
 class MessageBox(Form, QMessageBox):
     def __init__(self, parent=None):
         super(MessageBox, self).__init__(parent)
@@ -284,9 +319,15 @@ class MessageBox(Form, QMessageBox):
     def closeEvent(self, event):
         self.deleteLater()
 
-def showMessage(parent, title = 'Shot Export',
-                msg = 'Message', btns = QMessageBox.Ok,
-                icon = None, ques = None, details = None, **kwargs):
+
+def showMessage(parent,
+                title='Shot Export',
+                msg='Message',
+                btns=QMessageBox.Ok,
+                icon=None,
+                ques=None,
+                details=None,
+                **kwargs):
 
     mBox = MessageBox(parent)
     mBox.setWindowTitle(title)
@@ -311,18 +352,16 @@ def showMessage(parent, title = 'Shot Export',
 
 
 class QTextLogHandler(QObject, logging.Handler):
-    try:
-        appended = pyqtSignal(str)
-    except:
-        appended = Signal(str)
+    appended = pyqtSignal(str)
 
-    def __init__(self, text):
+    def __init__(self, text, progressBar=None):
         logging.Handler.__init__(self)
         QObject.__init__(self, parent=text)
-        self.text=text
+        self.text = text
         self.text.setReadOnly(True)
         self.appended.connect(self._appended)
         self.loggers = []
+        self.progressBar = progressBar
 
     def __del__(self):
         for logger in self.loggers:
@@ -332,9 +371,24 @@ class QTextLogHandler(QObject, logging.Handler):
         self.text.append(msg)
         self.text.repaint()
 
+    def progress(self, record):
+        if record.msg.startswith('Progress') and self.progressBar:
+            splits = record.msg.split(':')
+            try:
+                val, maxx = (num.strip() for num in splits[2].split('of'))
+                self.progressBar.setMaximum(int(maxx))
+                self.progressBar.setValue(int(val))
+                self.progressBar.repaint()
+            except (IndexError, ValueError):
+                pass
+            return True
+        else:
+            return False
+
     def emit(self, record):
         try:
-            self.appended.emit(self.format(record))
+            if not self.progress(record):
+                self.appended.emit(self.format(record))
         except:
             pass
 
@@ -355,14 +409,17 @@ class QTextLogHandler(QObject, logging.Handler):
         if setLoggerLevels:
             for logger in self.loggers:
                 logger.setLevel(level)
-    
+
+
 class FlowLayout(QLayout):
-    '''reimplements QLayout to adjust the elements in the avaible width in the window'''
+    '''reimplements QLayout to adjust the elements in the avaible width in the
+    window'''
+
     def __init__(self, parent=None, margin=0, spacing=-1):
         self.mysuper = super(FlowLayout, self)
         super(FlowLayout, self).__init__(parent)
         self.itemList = []
-        self.setContentsMargins(0,0,0,0)
+        self.setContentsMargins(0, 0, 0, 0)
 
     def __del__(self):
         item = self.takeAt(0)
@@ -415,8 +472,10 @@ class FlowLayout(QLayout):
         lineHeight = 0
         for item in self.itemList:
             wid = item.widget()
-            spaceX = self.spacing() + wid.style().layoutSpacing(QSizePolicy.PushButton, QSizePolicy.PushButton, Qt.Horizontal)
-            spaceY = self.spacing() + wid.style().layoutSpacing(QSizePolicy.PushButton, QSizePolicy.PushButton, Qt.Vertical)
+            spaceX = self.spacing() + wid.style().layoutSpacing(
+                QSizePolicy.PushButton, QSizePolicy.PushButton, Qt.Horizontal)
+            spaceY = self.spacing() + wid.style().layoutSpacing(
+                QSizePolicy.PushButton, QSizePolicy.PushButton, Qt.Vertical)
             nextX = x + item.sizeHint().width() + spaceX
             if nextX - spaceX > rect.right() and lineHeight > 0:
                 x = rect.x()
@@ -429,11 +488,15 @@ class FlowLayout(QLayout):
             lineHeight = max(lineHeight, item.sizeHint().height())
         return y + lineHeight - rect.y()
 
+
 borderColor = '#252525'
-flat = '\nborder-style: solid;\nborder-color: '+borderColor+';\nborder-width: 1px;\nborder-radius: 0px;\n'
-styleSheet = ('QComboBox {'+ flat +'\nmin-height: 25;\nmin-width: 125}'+
-             'QPushButton {'+ flat +'\nheight: 23;\nwidth: 75;\n}\n'+
-             'QPushButton:hover, QToolButton:hover {\nbackground-color: #353535;\nborder-style: solid;\nborder-color: #4876FF\n}'+
-             'QLineEdit {height: 23;'+ flat +'}\n'
-             'QToolButton {'+ flat +'}'+
-             'QPlainTextEdit {'+ flat +'}')
+flat = '\nborder-style: solid;\nborder-color: ' + \
+    borderColor + ';\nborder-width: 1px;\nborder-radius: 0px;\n'
+styleSheet = (
+    'QComboBox {' + flat + '\nmin-height: 25;\nmin-width: 125}' +
+    'QPushButton {' + flat + '\nheight: 23;\nwidth: 75;\n}\n' +
+    'QPushButton:hover, QToolButton:hover ' +
+    '{\nbackground-color: #353535;\nborder-style: ' +
+    'solid;\nborder-color: #4876FF\n}' +
+    'QLineEdit {height: 23;' + flat + '}\n'
+    'QToolButton {' + flat + '}' + 'QPlainTextEdit {' + flat + '}')
