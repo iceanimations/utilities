@@ -382,6 +382,14 @@ class QTextLogHandler(QObject, logging.Handler):
             except (IndexError, ValueError):
                 pass
             return True
+        elif record.msg.startswith('Max') and self.progressBar:
+            splits = record.msg.split(':')
+            try:
+                maxx = split(':')[-1].strip()
+                self.progressBar.setMaximum(int(maxx))
+            except (IndexError, ValueError):
+                pass
+            return True
         else:
             return False
 
