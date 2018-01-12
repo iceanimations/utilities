@@ -33,8 +33,6 @@ sequenceKey = 'tacticSeqKey'
 shotKey = 'tacticShotKey'
 contextKey = 'tacticContextKey'
 
-from pprint import pprint
-
 class CCounter(Counter):
     def update_count(self, c):
         for key, value in c.items():
@@ -161,8 +159,9 @@ def getShots(seq):
     errors = {}
     if server:
         try:
-            shots = server.eval("@SOBJECT(vfx/shot['sequence_code', '%s'])"%seq)
-            shots = { shot['code']: [shot['frame_in'], shot['frame_out']] for shot in shots }
+            shts = server.query('vfx/shot', filters=[('sequence_code', seq)])
+            for shot in shts:
+                shots.update({ shot['code']: [shot['frame_in'], shot['frame_out']]})
         except Exception as ex:
             errors['Could not get the list of Shots from TACTIC'] = str(ex)
     else:
@@ -414,6 +413,7 @@ def getLatestFile(file1, file2):
 def getAssets(ep, seq, context='shaded/combined'):
     errors = {}
     asset_paths = {}
+    asset_count = Counter()
     if ep and seq:
         try:
             maps = symlinks.getSymlinks(server.get_base_dirs()['win32_client_repo_dir'])
@@ -427,6 +427,15 @@ def getAssets(ep, seq, context='shaded/combined'):
             except Exception as ex:
                 errors['Could not get the Sequence Assets from TACTIC'] = str(ex)
             if not asset_codes: return asset_paths, errors
+            # fetch the shots and asset count
+            shots, err = getShots(seq)
+            if err: errors.update(err)
+            if shots:
+                shots = shots.keys()
+                for shot in shots:
+                    shot_assets, err = getAssetsInShot([shot])
+                    if err: errors.update(err)
+                    if shot_assets: asset_count |= Counter([asset['asset_code'] for asset in shot_assets])
             try:
                 ep_assets = server.query('vfx/asset_in_episode', filters = [('asset_code', asset_codes), ('episode_code', ep)])
             except Exception as ex:
@@ -459,4 +468,4 @@ def getAssets(ep, seq, context='shaded/combined'):
                 else:
                     if not asset_paths.has_key(ep_asset['asset_code']):
                         asset_paths[ep_asset['asset_code']] = None
-    return asset_paths, errors
+    return asset_paths, asset_count, errors
