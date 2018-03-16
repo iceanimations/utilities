@@ -30,7 +30,8 @@ nukeMenu = {
             'Replace Cameras In Backdrops': [replaceBackdropCameras,
                                              'Ctrl+Alt+C'],
             'Render Threads': [renderThreads, ''],
-            'Select Error Nodes': [selectErrorNodes, '']
+            'Select Error Nodes': [selectErrorNodes, ''],
+            'Replace Render Layer': [replaceRenderLayers, ''],
 }
 
 menuName = 'ICE Scripts/'

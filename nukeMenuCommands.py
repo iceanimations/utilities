@@ -1,5 +1,6 @@
 import createNukeMenu
 import nuke
+import sys
 
 reload(createNukeMenu)
 
@@ -68,3 +69,14 @@ def selectErrorNodes():
     reload(error_nodes_ui)
     reload(main)
     main.main_gui()
+
+
+def replaceRenderLayers():
+
+    for key in sys.modules.keys():
+        if key.startswith('replaceRenderLayer'):
+            del sys.modules[key]
+
+    import replaceRenderLayer
+    win = replaceRenderLayer.win()
+    win.show()
