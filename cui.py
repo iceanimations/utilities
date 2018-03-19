@@ -354,11 +354,11 @@ def showMessage(parent,
 class _QProgressLogHandler(QObject, logging.Handler):
     appended = pyqtSignal(str)
 
-    def __init__(self):
+    def __init__(self, parent):
         if self.__class__ == _QProgressLogHandler:
             raise TypeError('_QProgressLogHandler cannot be instantiated')
         logging.Handler.__init__(self)
-        QObject.__init__(self)
+        QObject.__init__(self, parent=parent)
         self._maxx = 0
         self._value = 0
         self._inProgress = False
@@ -370,7 +370,7 @@ class _QProgressLogHandler(QObject, logging.Handler):
 
     def emit(self, record):
         try:
-            if not self.progress(record):
+            if not self.checkProgress(record):
                 self.appended.emit(self.format(record))
         except:
             pass
@@ -394,16 +394,16 @@ class _QProgressLogHandler(QObject, logging.Handler):
             return True
         elif record.msg.startswith('Start'):
             try:
-                name = split(':')[-1].strip()
+                name = split(':')[1].strip()
                 self.startProgress(name)
-            except:
+            except (IndexError):
                 self.startProgress()
             return True
         elif record.msg.startswith('Done'):
             try:
-                name = split(':')[-1].strip()
+                name = split(':')[1].strip()
                 self.stopProgress(name)
-            except:
+            except (IndexError):
                 self.stopProgress()
             return True
         else:
@@ -444,7 +444,7 @@ class _QProgressLogHandler(QObject, logging.Handler):
 class QProgressBarLogHandler(_QProgressLogHandler):
 
     def __init__(self, progressBar):
-        super(QProgressBarLogHandler, self).__init__()
+        super(QProgressBarLogHandler, self).__init__(self.progressBar)
         self.progressBar = progressBar
 
     def startProgress(self, val, maxx):
@@ -466,13 +466,10 @@ class QProgressBarLogHandler(_QProgressLogHandler):
 class QTextLogHandler(_QProgressLogHandler):
 
     def __init__(self, text, progressBar=None):
-        super
-        logging.Handler.__init__(self)
-        QObject.__init__(self, parent=text)
+        super(QTextLogHandler, self).__init__(text)
         self.text = text
         self.text.setReadOnly(True)
         self.appended.connect(self.append)
-        self.loggers = []
         self.progressBar = progressBar
 
     def append(self, msg):
