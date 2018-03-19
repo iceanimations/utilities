@@ -355,13 +355,14 @@ class _QProgressLogHandler(QObject, logging.Handler):
     appended = pyqtSignal(str)
 
     def __init__(self):
-        if isinstance(self, QProgressHandler):
-            raise TypeError('QProgressHandler cannot be instantiated')
+        if self.__class__ == _QProgressLogHandler:
+            raise TypeError('_QProgressLogHandler cannot be instantiated')
         logging.Handler.__init__(self)
-        QObject.__init__(self, parent=text)
+        QObject.__init__(self)
         self._maxx = 0
         self._value = 0
         self._inProgress = False
+        self.loggers = []
 
     def __del__(self):
         for logger in self.loggers:
@@ -443,7 +444,7 @@ class _QProgressLogHandler(QObject, logging.Handler):
 class QProgressBarLogHandler(_QProgressLogHandler):
 
     def __init__(self, progressBar):
-        super(QProgressBarHandler, self).__init__()
+        super(QProgressBarLogHandler, self).__init__()
         self.progressBar = progressBar
 
     def startProgress(self, val, maxx):
