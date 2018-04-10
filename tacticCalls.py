@@ -287,6 +287,30 @@ def addAssetsToShot(assets, shot):
         errors['Could not find the TACTIC server'] = ""
     return errors
 
+def addShotLayer(layer, shot):
+    tLayer = None
+    errors = {}
+    if server:
+        try:
+            tLayer = server.get_unique_sobject('vfx/layer', data={'name': layer, 'shot_code': shot})
+        except Exception as ex:
+            errors['Could not create new layer %s'%layer] = str(ex)
+    else:
+        errors['Could not get the TACTIC server'] = ''
+    return tLayer, errors
+
+def checkinRenders(sk, context, path, frameRange):
+    errors = {}
+    if server:
+        try:
+            snap = server.create_snapshot(sk, context)
+            server.add_group(snap['code'], file_path=path, file_type='main', file_range=frameRange, mode='preallocate')
+        except Exception as ex:
+            errors['Could create snapshot or add files to %s'%sk] = str(ex)
+    else:
+        errors['Could not get the TACTIC server'] = ''
+    return errors
+
 def removeAssetFromShot(assets, shot):
     assetCount = Counter(assets)
     errors = {}
