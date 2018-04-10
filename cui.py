@@ -398,54 +398,76 @@ def showMessage(parent,
     return pressed
 
 
-class QTextLogHandler(QObject, logging.Handler):
+class _QProgressLogHandler(QObject, logging.Handler):
     appended = pyqtSignal(str)
 
-    def __init__(self, text, progressBar=None):
+    def __init__(self, parent):
+        if self.__class__ == _QProgressLogHandler:
+            raise TypeError('_QProgressLogHandler cannot be instantiated')
         logging.Handler.__init__(self)
-        QObject.__init__(self, parent=text)
-        self.text = text
-        self.text.setReadOnly(True)
-        self.appended.connect(self._appended)
+        QObject.__init__(self, parent=parent)
+        self._maxx = 0
+        self._value = 0
+        self._inProgress = False
         self.loggers = []
-        self.progressBar = progressBar
 
     def __del__(self):
         for logger in self.loggers:
             self.removeLogger(logger)
 
-    def _appended(self, msg):
-        self.text.append(msg)
-        self.text.repaint()
+    def emit(self, record):
+        try:
+            if not self.checkProgress(record):
+                self.appended.emit(self.format(record))
+        except:
+            pass
 
-    def progress(self, record):
-        if record.msg.startswith('Progress') and self.progressBar:
+    def checkProgress(self, record):
+        if record.msg.startswith('Progress'):
             splits = record.msg.split(':')
             try:
                 val, maxx = (num.strip() for num in splits[2].split('of'))
-                self.progressBar.setMaximum(int(maxx))
-                self.progressBar.setValue(int(val))
-                self.progressBar.repaint()
+                self.setProgress(int(val), int(maxx))
             except (IndexError, ValueError):
                 pass
             return True
-        elif record.msg.startswith('Max') and self.progressBar:
+        elif record.msg.startswith('Max'):
             splits = record.msg.split(':')
             try:
                 maxx = split(':')[-1].strip()
-                self.progressBar.setMaximum(int(maxx))
+                self.setMaximum(int(maxx))
             except (IndexError, ValueError):
                 pass
+            return True
+        elif record.msg.startswith('Start'):
+            try:
+                name = split(':')[1].strip()
+                self.startProgress(name)
+            except (IndexError):
+                self.startProgress()
+            return True
+        elif record.msg.startswith('Done'):
+            try:
+                name = split(':')[1].strip()
+                self.stopProgress(name)
+            except (IndexError):
+                self.stopProgress()
             return True
         else:
             return False
 
-    def emit(self, record):
-        try:
-            if not self.progress(record):
-                self.appended.emit(self.format(record))
-        except:
-            pass
+    def startProgress(self, name=''):
+        self._inProgress = name
+
+    def stopProgress(self, name=''):
+        self._inProgress = ''
+
+    def setProgress(self, val, maxx):
+        self._value = val
+        self._maxx = maxx
+
+    def setMaximum(self, maxx):
+        self._maxx = maxx
 
     def addLogger(self, logger=None):
         if logger is None:
@@ -460,10 +482,57 @@ class QTextLogHandler(QObject, logging.Handler):
             logger.removeHandler(self)
 
     def setLevel(self, level, setLoggerLevels=True):
-        super(QTextLogHandler, self).setLevel(level)
+        super(_QProgressLogHandler, self).setLevel(level)
         if setLoggerLevels:
             for logger in self.loggers:
                 logger.setLevel(level)
+
+
+class QProgressBarLogHandler(_QProgressLogHandler):
+
+    def __init__(self, progressBar):
+        super(QProgressBarLogHandler, self).__init__(self.progressBar)
+        self.progressBar = progressBar
+
+    def startProgress(self, val, maxx):
+        self.progressBar.show()
+
+    def stopProgress(self):
+        self.progressBar.hide()
+
+    def setProgress(self, val, maxx):
+        self.progressBar.setValue(val)
+        self.progressBar.setMaximum(maxx)
+        self.progressBar.repaint()
+
+    def setMaximum(self, maxx):
+        self.progressBar.setMaximum(maxx)
+        self.progressBar.repaint()
+
+
+class QTextLogHandler(_QProgressLogHandler):
+
+    def __init__(self, text, progressBar=None):
+        super(QTextLogHandler, self).__init__(text)
+        self.text = text
+        self.text.setReadOnly(True)
+        self.appended.connect(self.append)
+        self.progressBar = progressBar
+
+    def append(self, msg):
+        self.text.append(msg)
+        self.text.repaint()
+
+    def setProgress(self, val, maxx):
+        if self.progressBar:
+            self.progressBar.setValue(val)
+            self.progressBar.setMaximum(maxx)
+            self.progressBar.repaint()
+
+    def setMaximum(self, maxx):
+        if self.progressBar:
+            self.progressBar.setMaximum(maxx)
+            self.progressBar.repaint()
 
 
 class FlowLayout(QLayout):
