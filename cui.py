@@ -24,10 +24,48 @@ rootPath = osp.dirname(__file__)
 uiPath = osp.join(rootPath, 'ui')
 iconPath = osp.join(rootPath, 'icons')
 
+Form3, Base3 = uic.loadUiType(osp.join(uiPath, 'singleInputBox.ui'))
+class SingleInputBox(Form3, Base3):
+    '''
+    This class offers a modal text field to enter a string or number
+    '''
+    def __init__(self, parent=None, title='Input', label='Value',
+                 browseButton=False):
+        super(SingleInputBox, self).__init__(parent)
+        self.setupUi(self)
+        self.setWindowTitle(title)
+        self.label.setText(label)
+        self.inputValue = ''
+        self.okButton.clicked.connect(self.ok)
+        self.cancelButton.clicked.connect(self.cancel)
+        self.inputBox.returnPressed.connect(self.ok)
+        if not browseButton:
+            self.browseButton.hide()
+        self.browseButton.clicked.connect(self.setFilename)
+    
+    def setFilename(self):
+        filename = QFileDialog.getOpenFileName(self, 'Select File', '', '*.fbx')
+        if filename:
+            self.inputBox.setText(filename)
+        
+    def getValue(self):
+        return self.inputValue
+    
+    def ok(self):
+        self.inputValue = self.inputBox.text()
+        self.accept()
+    
+    def cancel(self):
+        self.reject()
+
 Form2, Base2 = uic.loadUiType(osp.join(uiPath, 'selectionBox.ui'))
 
 
 class SelectionBox(Form2, Base2):
+    '''
+    This class offers a dialog offering multiple buttons such as QRadioButton
+    or QCheckBox
+    '''
     def __init__(self, parent=None, items=None, msg=''):
         '''
         @param items: objects of QCheckbox or QRadioButton
@@ -70,6 +108,9 @@ Form1, Base1 = uic.loadUiType(osp.join(uiPath, 'multiSelectComboBox.ui'))
 
 
 class MultiSelectComboBox(Form1, Base1):
+    '''
+    This class offers comboBox to select multiple objects at once
+    '''
     try:
         selectionDone = pyqtSignal(list)
     except:
@@ -195,8 +236,11 @@ class MultiSelectComboBox(Form1, Base1):
 
 
 class TacticUiBase(object):
-    '''This class contains useful methods for UIs that contain TACTIC
-    Project, Episode, Sequence and Shot selector boxes'''
+    '''
+    This class contains useful methods to add selection boxes to any Window
+    that requires TACTIC Project, Episode, Sequence and Shot selection.
+    Just inherit that Window form this class and use call the required methods
+    '''
 
     def setContext(self, pro, ep, seq):
         if pro:
@@ -313,6 +357,9 @@ Form, Base = uic.loadUiType(osp.join(uiPath, 'msgBox.ui'))
 
 
 class MessageBox(Form, QMessageBox):
+    '''
+    Creates a custom message box to show orbitrary messages
+    '''
     def __init__(self, parent=None):
         super(MessageBox, self).__init__(parent)
 
@@ -420,8 +467,10 @@ class QTextLogHandler(QObject, logging.Handler):
 
 
 class FlowLayout(QLayout):
-    '''reimplements QLayout to adjust the elements in the avaible width in the
-    window'''
+    '''
+    Reimplementation of QLayout to adjust the elements in the avaible width and
+    height in the window while it is being resized
+    '''
 
     def __init__(self, parent=None, margin=0, spacing=-1):
         self.mysuper = super(FlowLayout, self)
@@ -496,7 +545,7 @@ class FlowLayout(QLayout):
             lineHeight = max(lineHeight, item.sizeHint().height())
         return y + lineHeight - rect.y()
 
-
+# some usefull CSS
 borderColor = '#252525'
 flat = '\nborder-style: solid;\nborder-color: ' + \
     borderColor + ';\nborder-width: 1px;\nborder-radius: 0px;\n'
