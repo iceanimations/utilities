@@ -48,14 +48,23 @@ def setPyQt4():
 
 def setPySide():
     global uic, sip
-
-    import PySide as PyQt4
-    import PySide.QtCore as QtCore
-    import PySide.QtGui as QtGui
+    try:
+        import PySide as PyQt4
+        import PySide.QtCore as QtCore
+        import PySide.QtGui as QtGui        
+        import pysideuic as uic
+        import shiboken as sip
+    except ImportError:
+        import PySide2 as PyQt4
+        import PySide2.QtCore as QtCore
+        import PySide2.QtGui as QtGui
+        import PySide2.QtWidgets as QtWidgets
+        for widget in dir(QtWidgets):
+            if not widget.startswith('_'):
+                setattr(QtGui, widget, getattr(QtWidgets, widget))
+        import pyside2uic as uic
+        import shiboken2 as sip
     import uiLoader
-    import pysideuic as uic
-    import shiboken as sip
-
     QtCore.pyqtSignal = QtCore.Signal
     QtCore.pyqtSlot = QtCore.Slot
     uic.loadUiType = uiLoader.loadUiType

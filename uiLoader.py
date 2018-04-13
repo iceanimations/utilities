@@ -1,6 +1,10 @@
 from cStringIO import StringIO
-from PySide import QtGui
-import pysideuic
+try:
+    from PySide import QtGui
+    import pysideuic
+except ImportError:
+    from PySide2 import QtWidget as QtGui
+    import pyside2uic as pysideuic
 import xml.etree.ElementTree as xml
 
 def loadUiType(uiFile):
