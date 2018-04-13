@@ -94,6 +94,8 @@ def _setPySide():
     try:
         setPySide()
     except ImportError:
+        import traceback
+        traceback.print_exc()
         setPyQt4()
 
 
