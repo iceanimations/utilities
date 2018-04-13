@@ -51,7 +51,7 @@ def setPySide():
     try:
         import PySide as PyQt4
         import PySide.QtCore as QtCore
-        import PySide.QtGui as QtGui        
+        import PySide.QtGui as QtGui
         import pysideuic as uic
         import shiboken as sip
     except ImportError:
@@ -100,7 +100,7 @@ def _setPySide():
 try:
     import pymel.core as pc
     version = int(re.search('\\d{4}', pc.about(v=True)).group())
-    if version in range(2011, 2018):
+    if version in range(2011, 2017):
         site.addsitedir(r"R:\Python_Scripts\maya" + str(version) + r"\PyQt")
         setPyQt4()
     else:
