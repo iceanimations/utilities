@@ -3,7 +3,7 @@ try:
     from PySide import QtGui
     import pysideuic
 except ImportError:
-    from PySide2 import QtWidget as QtGui
+    from PySide2 import QtWidgets as QtGui
     import pyside2uic as pysideuic
 import xml.etree.ElementTree as xml
 
