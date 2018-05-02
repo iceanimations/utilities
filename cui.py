@@ -25,12 +25,19 @@ uiPath = osp.join(rootPath, 'ui')
 iconPath = osp.join(rootPath, 'icons')
 
 Form3, Base3 = uic.loadUiType(osp.join(uiPath, 'singleInputBox.ui'))
+
+
 class SingleInputBox(Form3, Base3):
     '''
     This class offers a modal text field to enter a string or number
     '''
-    def __init__(self, parent=None, title='Input', label='Value',
-                 browseButton=False):
+
+    def __init__(self,
+                 parent=None,
+                 title='Input',
+                 label='Value',
+                 browseButton=False,
+                 fileFilter="*.fbx"):
         super(SingleInputBox, self).__init__(parent)
         self.setupUi(self)
         self.setWindowTitle(title)
@@ -39,24 +46,27 @@ class SingleInputBox(Form3, Base3):
         self.okButton.clicked.connect(self.ok)
         self.cancelButton.clicked.connect(self.cancel)
         self.inputBox.returnPressed.connect(self.ok)
+        self.fileFilter = fileFilter
         if not browseButton:
             self.browseButton.hide()
         self.browseButton.clicked.connect(self.setFilename)
-    
+
     def setFilename(self):
-        filename = QFileDialog.getOpenFileName(self, 'Select File', '', '*.fbx')
+        filename = QFileDialog.getOpenFileName(self, 'Select File', '',
+                                               self.fileFilter)
         if filename:
             self.inputBox.setText(filename)
-        
+
     def getValue(self):
         return self.inputValue
-    
+
     def ok(self):
         self.inputValue = self.inputBox.text()
         self.accept()
-    
+
     def cancel(self):
         self.reject()
+
 
 Form2, Base2 = uic.loadUiType(osp.join(uiPath, 'selectionBox.ui'))
 
@@ -66,6 +76,7 @@ class SelectionBox(Form2, Base2):
     This class offers a dialog offering multiple buttons such as QRadioButton
     or QCheckBox
     '''
+
     def __init__(self, parent=None, items=None, msg=''):
         '''
         @param items: objects of QCheckbox or QRadioButton
@@ -196,8 +207,8 @@ class MultiSelectComboBox(Form1, Base1):
                 action.defaultWidget() for action in self.menu.actions()
                 if not type(action) is QAction
             ]
-            if cBox.text().strip() != 'Select All' and
-            cBox.text().strip() != 'Invert Selection'
+            if cBox.text().strip() != 'Select All'
+            and cBox.text().strip() != 'Invert Selection'
         ]
 
     def getItems(self):
@@ -360,6 +371,7 @@ class MessageBox(Form, QMessageBox):
     '''
     Creates a custom message box to show orbitrary messages
     '''
+
     def __init__(self, parent=None):
         super(MessageBox, self).__init__(parent)
 
@@ -489,7 +501,6 @@ class _QProgressLogHandler(QObject, logging.Handler):
 
 
 class QProgressBarLogHandler(_QProgressLogHandler):
-
     def __init__(self, progressBar):
         super(QProgressBarLogHandler, self).__init__(self.progressBar)
         self.progressBar = progressBar
@@ -511,7 +522,6 @@ class QProgressBarLogHandler(_QProgressLogHandler):
 
 
 class QTextLogHandler(_QProgressLogHandler):
-
     def __init__(self, text, progressBar=None):
         super(QTextLogHandler, self).__init__(text)
         self.text = text
@@ -614,15 +624,15 @@ class FlowLayout(QLayout):
             lineHeight = max(lineHeight, item.sizeHint().height())
         return y + lineHeight - rect.y()
 
+
 # some usefull CSS
 borderColor = '#252525'
 flat = '\nborder-style: solid;\nborder-color: ' + \
     borderColor + ';\nborder-width: 1px;\nborder-radius: 0px;\n'
-styleSheet = (
-    'QComboBox {' + flat + '\nmin-height: 25;\nmin-width: 125}' +
-    'QPushButton {' + flat + '\nheight: 23;\nwidth: 75;\n}\n' +
-    'QPushButton:hover, QToolButton:hover ' +
-    '{\nbackground-color: #353535;\nborder-style: ' +
-    'solid;\nborder-color: #4876FF\n}' +
-    'QLineEdit {height: 23;' + flat + '}\n'
-    'QToolButton {' + flat + '}' + 'QPlainTextEdit {' + flat + '}')
+styleSheet = ('QComboBox {' + flat + '\nmin-height: 25;\nmin-width: 125}' +
+              'QPushButton {' + flat + '\nheight: 23;\nwidth: 75;\n}\n' +
+              'QPushButton:hover, QToolButton:hover ' +
+              '{\nbackground-color: #353535;\nborder-style: ' +
+              'solid;\nborder-color: #4876FF\n}' + 'QLineEdit {height: 23;' +
+              flat + '}\n'
+              'QToolButton {' + flat + '}' + 'QPlainTextEdit {' + flat + '}')
