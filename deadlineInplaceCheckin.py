@@ -6,6 +6,8 @@ import tacticCalls
 import os.path as osp
 import iutil
 
+#TODO: Modify the created file object in snapshot to contain the file paths against the main file key instead of source path key
+
 def __main__(*args):
     deadlinePlugin = args[0]
     job = deadlinePlugin.GetJob()

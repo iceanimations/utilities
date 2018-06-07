@@ -6,7 +6,6 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import os.path as osp
 import logging
-import qutil
 import iutil
 
 try:
@@ -17,7 +16,6 @@ try:
 except:
     pass
 
-reload(qutil)
 reload(iutil)
 
 rootPath = osp.dirname(__file__)
@@ -305,7 +303,7 @@ class TacticUiBase(object):
                 self.showMessage(
                     msg='Error occurred while setting the project on TACTIC',
                     icon=QMessageBox.Critical,
-                    details=qutil.dictionaryToDetails(errors))
+                    details=iutil.dictionaryToDetails(errors))
             self.populateEpisodes()
         self.releaseBusy()
 
@@ -317,7 +315,7 @@ class TacticUiBase(object):
                 self.showMessage(
                     msg='Error occurred while retrieving the Episodes',
                     icon=QMessageBox.Critical,
-                    details=qutil.dictionaryToDetails(errors))
+                    details=iutil.dictionaryToDetails(errors))
             self.epBox.addItems(episodes)
         except Exception as ex:
             self.releaseBusy()
@@ -337,7 +335,7 @@ class TacticUiBase(object):
                     self.showMessage(
                         msg='Error occurred while retrieving the Sequences',
                         icon=QMessageBox.Critical,
-                        details=qutil.dictionaryToDetails(errors))
+                        details=iutil.dictionaryToDetails(errors))
                 self.seqBox.addItems(seqs)
         except Exception as ex:
             self.releaseBusy()
