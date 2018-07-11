@@ -7,6 +7,7 @@ from PyQt4.QtCore import *
 import os.path as osp
 import logging
 import iutil
+import qtify_maya_window as qtify
 
 try:
     import tacticCalls as tc
@@ -385,6 +386,9 @@ def showMessage(parent,
                 ques=None,
                 details=None,
                 **kwargs):
+    
+    if parent == 'maya':
+        parent = qtify.getMayaWindow()
 
     mBox = MessageBox(parent)
     mBox.setWindowTitle(title)
