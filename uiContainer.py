@@ -6,7 +6,6 @@ import sys
 uic = None
 sip = None
 
-
 def getPathsFromFileDialogResult(result):
     if result and isinstance(result, tuple):
         return result[0]
@@ -94,8 +93,6 @@ def _setPySide():
     try:
         setPySide()
     except ImportError:
-        import traceback
-        traceback.print_exc()
         setPyQt4()
 
 

@@ -7,7 +7,10 @@ from PyQt4.QtCore import *
 import os.path as osp
 import logging
 import iutil
-import qtify_maya_window as qtify
+try:
+    import qtify_maya_window as qtify
+except:
+    pass
 
 try:
     import tacticCalls as tc
