@@ -1,16 +1,12 @@
-try:
-    from uiContainer import uic
-except:
-    from PyQt4 import uic
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
 import os.path as osp
 import logging
 import iutil
-try:
-    import qtify_maya_window as qtify
-except:
-    pass
+
+from Qt.QtWidgets import (
+        QDialog, QFileDialog, QMessageBox, QFrame, QMenu, QPushButton,
+        QWidgetAction, QAction, QCheckBox, QLayout, QSizePolicy)
+from Qt.QtCompat import loadUi
+from Qt.QtCore import Signal, QObject, Qt, QRect, QSize, QPoint
 
 try:
     import tacticCalls as tc
@@ -20,16 +16,19 @@ try:
 except:
     pass
 
+try:
+    import qtfy_maya_window as qtify
+except:
+    pass
+
 reload(iutil)
 
 rootPath = osp.dirname(__file__)
 uiPath = osp.join(rootPath, 'ui')
 iconPath = osp.join(rootPath, 'icons')
 
-Form3, Base3 = uic.loadUiType(osp.join(uiPath, 'singleInputBox.ui'))
 
-
-class SingleInputBox(Form3, Base3):
+class SingleInputBox(QDialog):
     '''
     This class offers a modal text field to enter a string or number
     '''
@@ -41,7 +40,7 @@ class SingleInputBox(Form3, Base3):
                  browseButton=False,
                  fileFilter="*.fbx"):
         super(SingleInputBox, self).__init__(parent)
-        self.setupUi(self)
+        loadUi(osp.join(uiPath, 'singleInputBox.ui'), self)
         self.setWindowTitle(title)
         self.label.setText(label)
         self.inputValue = ''
@@ -70,10 +69,7 @@ class SingleInputBox(Form3, Base3):
         self.reject()
 
 
-Form2, Base2 = uic.loadUiType(osp.join(uiPath, 'selectionBox.ui'))
-
-
-class SelectionBox(Form2, Base2):
+class SelectionBox(QDialog):
     '''
     This class offers a dialog offering multiple buttons such as QRadioButton
     or QCheckBox
@@ -84,7 +80,7 @@ class SelectionBox(Form2, Base2):
         @param items: objects of QCheckbox or QRadioButton
         '''
         super(SelectionBox, self).__init__(parent)
-        self.setupUi(self)
+        loadUi(osp.join(uiPath, 'selectionBox.ui'), self)
 
         self.setMessage(msg)
         self.okButton.clicked.connect(self.ok)
@@ -117,21 +113,15 @@ class SelectionBox(Form2, Base2):
         return self.selectedItems
 
 
-Form1, Base1 = uic.loadUiType(osp.join(uiPath, 'multiSelectComboBox.ui'))
-
-
-class MultiSelectComboBox(Form1, Base1):
+class MultiSelectComboBox(QFrame):
     '''
     This class offers comboBox to select multiple objects at once
     '''
-    try:
-        selectionDone = pyqtSignal(list)
-    except:
-        selectionDone = Signal(list)
+    selectionDone = Signal(list)
 
     def __init__(self, parent=None, msg='--Select--', triState=False):
         super(MultiSelectComboBox, self).__init__(parent)
-        self.setupUi(self)
+        loadUi(osp.join(uiPath, 'multiSelectComboBox.ui'), self)
 
         self.triState = triState
         self.msg = msg
@@ -366,16 +356,14 @@ class TacticUiBase(object):
         return ep
 
 
-Form, Base = uic.loadUiType(osp.join(uiPath, 'msgBox.ui'))
-
-
-class MessageBox(Form, QMessageBox):
+class MessageBox(QMessageBox):
     '''
     Creates a custom message box to show orbitrary messages
     '''
 
     def __init__(self, parent=None):
         super(MessageBox, self).__init__(parent)
+        loadUi(osp.join(uiPath, 'msgBox.ui'), self)
 
     def closeEvent(self, event):
         self.deleteLater()
@@ -389,7 +377,7 @@ def showMessage(parent,
                 ques=None,
                 details=None,
                 **kwargs):
-    
+
     if parent == 'maya':
         parent = qtify.getMayaWindow()
 
@@ -416,7 +404,7 @@ def showMessage(parent,
 
 
 class _QProgressLogHandler(QObject, logging.Handler):
-    appended = pyqtSignal(str)
+    appended = Signal(str)
 
     def __init__(self, parent):
         if self.__class__ == _QProgressLogHandler:
@@ -451,21 +439,21 @@ class _QProgressLogHandler(QObject, logging.Handler):
         elif record.msg.startswith('Max'):
             splits = record.msg.split(':')
             try:
-                maxx = split(':')[-1].strip()
+                maxx = record.msg.split(':')[-1].strip()
                 self.setMaximum(int(maxx))
             except (IndexError, ValueError):
                 pass
             return True
         elif record.msg.startswith('Start'):
             try:
-                name = split(':')[1].strip()
+                name = record.msg.split(':')[1].strip()
                 self.startProgress(name)
             except (IndexError):
                 self.startProgress()
             return True
         elif record.msg.startswith('Done'):
             try:
-                name = split(':')[1].strip()
+                name = record.msg.split(':')[1].strip()
                 self.stopProgress(name)
             except (IndexError):
                 self.stopProgress()
