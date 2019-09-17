@@ -362,8 +362,17 @@ class MessageBox(QMessageBox):
     '''
 
     def __init__(self, parent=None):
+        self._parent = parent
         super(MessageBox, self).__init__(parent)
         loadUi(osp.join(uiPath, 'msgBox.ui'), self)
+
+    def showEvent(self, event):
+        if self._parent and hasattr(self._parent, 'geometry'):
+            geo = self.geometry()
+            pgeo = self._parent.geometry()
+            self.move(pgeo.x() + pgeo.width()/2 - geo.width()/2,
+                      pgeo.y() + pgeo.height()/2 - geo.height()/2)
+        event.accept()
 
     def closeEvent(self, event):
         self.deleteLater()
