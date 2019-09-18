@@ -4,7 +4,7 @@ import iutil
 
 from Qt.QtWidgets import (
         QDialog, QFileDialog, QMessageBox, QFrame, QMenu, QPushButton,
-        QWidgetAction, QAction, QCheckBox, QLayout, QSizePolicy)
+        QApplication, QWidgetAction, QAction, QCheckBox, QLayout, QSizePolicy)
 from Qt.QtCompat import loadUi
 from Qt.QtCore import Signal, QObject, Qt, QRect, QSize, QPoint
 
@@ -26,6 +26,26 @@ reload(iutil)
 rootPath = osp.dirname(__file__)
 uiPath = osp.join(rootPath, 'ui')
 iconPath = osp.join(rootPath, 'icons')
+
+
+def setup_ui(uifile, base_instance=None):
+    """Load a Qt Designer .ui file and returns an instance of the user interface
+    Args:
+        uifile (str): Absolute path to .ui file
+        base_instance (QWidget): The widget into which UI widgets are
+        loaded
+    Returns:
+        QWidget: the base instance
+    """
+    ui = loadUi(uifile)  # Qt.py mapped function
+    if not base_instance:
+        return ui
+    else:
+        for member in dir(ui):
+            if not member.startswith('__') and \
+                    member != 'staticMetaObject':
+                setattr(base_instance, member, getattr(ui, member))
+    return ui
 
 
 class SingleInputBox(QDialog):
@@ -361,12 +381,12 @@ class MessageBox(QMessageBox):
     Creates a custom message box to show orbitrary messages
     '''
 
-    def __init__(self, parent=None):
-        self._parent = parent
+    def __init__(self, parent=QApplication.activeWindow()):
         super(MessageBox, self).__init__(parent)
         loadUi(osp.join(uiPath, 'msgBox.ui'), self)
 
     def showEvent(self, event):
+        self._parent = self.parentWidget()
         if self._parent and hasattr(self._parent, 'geometry'):
             geo = self.geometry()
             pgeo = self._parent.geometry()
